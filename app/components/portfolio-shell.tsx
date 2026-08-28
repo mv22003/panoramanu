@@ -62,14 +62,29 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       );
     }
 
+    if (mode === "gallery") {
+      return (
+        <div className="relative w-full overflow-hidden bg-[#0f0d0a]">
+          <img
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full scale-110 object-cover opacity-24 blur-2xl saturate-[0.82]"
+            src={photo.imageUrl}
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06)_0%,rgba(18,16,13,0.14)_26%,rgba(10,9,7,0.72)_100%)]" />
+          <img
+            alt={photo.title}
+            className="relative z-10 block h-auto w-full transition duration-500 group-hover:scale-[1.015]"
+            src={photo.imageUrl}
+          />
+        </div>
+      );
+    }
+
     return (
       <img
         alt={photo.title}
-        className={
-          mode === "hero"
-            ? "h-full w-full object-cover"
-            : "h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-        }
+        className="h-full w-full object-cover"
         src={photo.imageUrl}
       />
     );
@@ -190,14 +205,14 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             </p>
           </div>
 
-          <div className="mt-8 grid gap-5 md:grid-cols-2">
+          <div className="mt-8 columns-1 gap-5 md:columns-2">
             {photos.map((photo) => {
               const isSelected = photo.id === selectedPhoto?.id;
 
               return (
                 <button
                   key={photo.id}
-                  className={`group overflow-hidden rounded-[1.5rem] border text-left transition ${
+                  className={`group mb-5 inline-block w-full break-inside-avoid overflow-hidden rounded-b-[1.5rem] border text-left align-top transition ${
                     isSelected
                       ? "border-[#8a7148] bg-[#1d1812] shadow-[0_18px_40px_rgba(138,113,72,0.14)]"
                       : "border-stone-800 bg-stone-950/70 hover:-translate-y-0.5 hover:border-stone-700"
@@ -205,7 +220,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   onClick={() => setSelectedPhotoId(photo.id)}
                   type="button"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-stone-900">
+                  <div className="overflow-hidden bg-stone-900">
                     {renderPhotoSurface(photo, "gallery")}
                   </div>
                   <div className="space-y-3 p-5">
