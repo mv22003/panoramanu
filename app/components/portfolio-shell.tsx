@@ -47,12 +47,12 @@ function GitHubIcon() {
 
 export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [photos] = useState(initialPhotos);
-  const [selectedPhotoId, setSelectedPhotoId] = useState(initialPhotos[0]?.id ?? "");
+  const [selectedPhotoId, setSelectedPhotoId] = useState("");
   const [isAccessOpen, setIsAccessOpen] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
 
   const selectedPhoto = useMemo(
-    () => photos.find((photo) => photo.id === selectedPhotoId) ?? photos[0],
+    () => photos.find((photo) => photo.id === selectedPhotoId),
     [photos, selectedPhotoId],
   );
   const heroPhoto = photos[heroPhotoIndex] ?? photos[0];
@@ -253,7 +253,9 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       ? "border-[#8a7148] bg-[#1d1812] shadow-[0_18px_40px_rgba(138,113,72,0.14)]"
                       : "border-stone-800 bg-stone-950/70 hover:-translate-y-0.5 hover:border-stone-700"
                   }`}
-                  onClick={() => setSelectedPhotoId(photo.id)}
+                  onClick={() =>
+                    setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
+                  }
                   type="button"
                 >
                   <div className="overflow-hidden bg-stone-900">
@@ -287,48 +289,72 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
-          <div className="rounded-[2rem] border border-[#6f5b3f]/55 bg-[linear-gradient(135deg,#18140f_0%,#10100f_100%)] px-6 py-8 text-stone-100 shadow-[0_24px_80px_rgba(0,0,0,0.4)] sm:px-8">
-            <p className="text-xs uppercase tracking-[0.28em] text-stone-400">
-              Selected frame
-            </p>
-            {selectedPhoto ? (
-              <>
-                <h2 className="mt-3 text-2xl font-semibold text-stone-50">
-                  {selectedPhoto.title}
-                </h2>
-                {selectedPhoto.description ? (
-                  <p className="mt-3 text-sm leading-7 text-stone-300">
-                    {selectedPhoto.description}
-                  </p>
-                ) : null}
-                <div className="mt-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.18em] text-amber-200/70">
-                  <span>{selectedPhoto.locationName}</span>
-                  {selectedPhoto.takenOn ? <span>{selectedPhoto.takenOn}</span> : null}
-                  <span>
-                    {selectedPhoto.lat.toFixed(4)}, {selectedPhoto.lng.toFixed(4)}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <p className="mt-3 text-sm text-stone-300">
-                Add your first photo to start mapping the collection.
-              </p>
-            )}
-          </div>
-
+        <section>
           <div className="overflow-hidden rounded-[2rem] border border-stone-800/80 bg-[#12100d]/88 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
             <div className="flex items-center justify-between gap-4 border-b border-stone-800/80 px-6 py-4 sm:px-8">
               <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
                 Map view
               </p>
-              <p className="text-xs text-stone-500">Photo location context</p>
+              {selectedPhoto ? (
+                <button
+                  className="appearance-none border-0 bg-transparent p-0 font-inherit text-inherit"
+                  onClick={() => setSelectedPhotoId("")}
+                  type="button"
+                >
+                  <span className="text-xs uppercase tracking-[0.28em] text-stone-500 transition hover:text-stone-200">
+                    See different image
+                  </span>
+                </button>
+              ) : (
+                <p className="text-xs text-stone-500">Photo location context</p>
+              )}
             </div>
-            <PhotoMapShell
-              onSelectPhoto={setSelectedPhotoId}
-              photos={photos}
-              selectedPhotoId={selectedPhoto?.id ?? ""}
-            />
+            <div className="relative">
+              {selectedPhoto ? (
+                <div className="pointer-events-none absolute right-4 top-4 z-[500] inline-flex w-fit max-w-[13rem] flex-col overflow-hidden rounded-b-[1.25rem] border border-stone-800/90 bg-[#12100d]/96 shadow-[0_18px_45px_rgba(0,0,0,0.4)] sm:right-6 sm:top-6">
+                  <div className="relative w-full overflow-hidden bg-stone-950">
+                    {selectedPhoto.imageUrl ? (
+                      <>
+                        <img
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-28 blur-2xl saturate-[0.82]"
+                          src={selectedPhoto.imageUrl}
+                        />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05)_0%,rgba(18,16,13,0.1)_26%,rgba(10,9,7,0.66)_100%)]" />
+                        <div className="relative flex w-full max-h-[13rem] min-h-[8.5rem] items-center justify-center">
+                          <img
+                            alt={selectedPhoto.title}
+                            className="block h-auto max-h-[13rem] w-auto max-w-[13rem] self-center"
+                            src={selectedPhoto.imageUrl}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex min-h-[8.5rem] min-w-[9rem] max-w-[13rem] items-center justify-center bg-[radial-gradient(circle_at_top,#2a241d_0%,#16120e_60%,#0f0d0a_100%)] px-4 text-center text-xs uppercase tracking-[0.22em] text-stone-500">
+                        Image pending
+                      </div>
+                    )}
+                  </div>
+                  <div className="max-w-[13rem] space-y-2 border-t border-stone-800/80 px-3 py-3">
+                    <p className="text-sm font-semibold text-stone-100">
+                      {selectedPhoto.title}
+                    </p>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-stone-400">
+                      {selectedPhoto.locationName}
+                    </p>
+                    {selectedPhoto.takenOn ? (
+                      <p className="text-[11px] text-stone-500">{selectedPhoto.takenOn}</p>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+              <PhotoMapShell
+                onSelectPhoto={setSelectedPhotoId}
+                photos={photos}
+                selectedPhotoId={selectedPhotoId}
+              />
+            </div>
           </div>
         </section>
       </main>

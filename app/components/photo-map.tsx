@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect } from "react";
+import { latLngBounds } from "leaflet";
 import {
   CircleMarker,
   MapContainer,
-  Popup,
   TileLayer,
   useMap,
 } from "react-leaflet";
@@ -17,18 +17,42 @@ type PhotoMapProps = {
   onSelectPhoto: (photoId: string) => void;
 };
 
-function MapViewport({ photo }: { photo: Photo | undefined }) {
+function MapViewport({
+  photo,
+  photos,
+}: {
+  photo: Photo | undefined;
+  photos: Photo[];
+}) {
   const map = useMap();
 
   useEffect(() => {
-    if (!photo) {
+    if (photo) {
+      map.flyTo([photo.lat, photo.lng], 13, {
+        duration: 1.2,
+      });
       return;
     }
 
-    map.flyTo([photo.lat, photo.lng], 13, {
+    if (photos.length === 0) {
+      map.setView([20, 0], 2);
+      return;
+    }
+
+    if (photos.length === 1) {
+      map.flyTo([photos[0].lat, photos[0].lng], 13, {
+        duration: 1.2,
+      });
+      return;
+    }
+
+    const bounds = latLngBounds(photos.map((item) => [item.lat, item.lng] as [number, number]));
+    map.flyToBounds(bounds, {
       duration: 1.2,
+      maxZoom: 5,
+      padding: [48, 48],
     });
-  }, [map, photo]);
+  }, [map, photo, photos]);
 
   return null;
 }
@@ -38,13 +62,12 @@ export default function PhotoMap({
   selectedPhotoId,
   onSelectPhoto,
 }: PhotoMapProps) {
-  const selectedPhoto =
-    photos.find((photo) => photo.id === selectedPhotoId) ?? photos[0];
+  const selectedPhoto = photos.find((photo) => photo.id === selectedPhotoId);
 
   return (
     <MapContainer
-      center={[selectedPhoto?.lat ?? 51.5074, selectedPhoto?.lng ?? -0.1278]}
-      zoom={12}
+      center={[20, 0]}
+      zoom={2}
       scrollWheelZoom={false}
       className="h-[420px] w-full"
     >
@@ -53,7 +76,7 @@ export default function PhotoMap({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      <MapViewport photo={selectedPhoto} />
+      <MapViewport photo={selectedPhoto} photos={photos} />
 
       {photos.map((photo) => {
         const isSelected = photo.id === selectedPhotoId;
@@ -62,24 +85,17 @@ export default function PhotoMap({
           <CircleMarker
             key={photo.id}
             center={[photo.lat, photo.lng]}
-            radius={isSelected ? 11 : 8}
+            radius={isSelected ? 11 : 10}
             pathOptions={{
-              color: isSelected ? "#3e5c47" : "#5b4a3e",
-              fillColor: isSelected ? "#d6a663" : "#f2ede4",
-              fillOpacity: 0.95,
-              weight: isSelected ? 2 : 1,
+              color: isSelected ? "#3e5c47" : "#2f241b",
+              fillColor: isSelected ? "#d6a663" : "#c69352",
+              fillOpacity: isSelected ? 0.95 : 1,
+              weight: isSelected ? 2 : 2,
             }}
             eventHandlers={{
-              click: () => onSelectPhoto(photo.id),
+              click: () => onSelectPhoto(photo.id === selectedPhotoId ? "" : photo.id),
             }}
-          >
-            <Popup>
-              <div className="space-y-1">
-                <p className="text-sm font-semibold text-stone-900">{photo.title}</p>
-                <p className="text-xs text-stone-600">{photo.locationName}</p>
-              </div>
-            </Popup>
-          </CircleMarker>
+          />
         );
       })}
     </MapContainer>
