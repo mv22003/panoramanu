@@ -46,18 +46,56 @@ function GitHubIcon() {
   );
 }
 
+function MapPinIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-3.5 w-3.5 shrink-0"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <circle cx="12" cy="10" fill="currentColor" r="2.1" />
+    </svg>
+  );
+}
+
+function MagnifierIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-3.5 w-3.5 shrink-0"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="11" cy="11" r="5.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="m15.2 15.2 4.3 4.3" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
 export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [photos] = useState(initialPhotos);
   const [selectedPhotoId, setSelectedPhotoId] = useState("");
   const [isAccessOpen, setIsAccessOpen] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
+  const [zoomedPhotoId, setZoomedPhotoId] = useState("");
   const galleryCardRefs = useRef(new Map<string, HTMLButtonElement>());
+  const mapSectionRef = useRef<HTMLElement | null>(null);
 
   const selectedPhoto = useMemo(
     () => photos.find((photo) => photo.id === selectedPhotoId),
     [photos, selectedPhotoId],
   );
   const heroPhoto = photos[heroPhotoIndex] ?? photos[0];
+  const zoomedPhoto = useMemo(
+    () => photos.find((photo) => photo.id === zoomedPhotoId),
+    [photos, zoomedPhotoId],
+  );
   const countriesCount = useMemo(
     () =>
       new Set(
@@ -80,11 +118,43 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
     return () => window.clearInterval(interval);
   }, [photos]);
 
+  useEffect(() => {
+    if (!zoomedPhoto) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setZoomedPhotoId("");
+      }
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [zoomedPhoto]);
+
   function selectPhotoAndScrollToGallery(photoId: string) {
     setSelectedPhotoId(photoId);
 
     window.requestAnimationFrame(() => {
       galleryCardRefs.current.get(photoId)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }
+
+  function selectPhotoAndScrollToMap(photoId: string) {
+    setSelectedPhotoId(photoId);
+
+    window.requestAnimationFrame(() => {
+      mapSectionRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -141,6 +211,48 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100">
+      {zoomedPhoto ? (
+        <div
+          aria-modal="true"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(6,5,4,0.94)] px-4 py-6 sm:px-6"
+          onClick={() => setZoomedPhotoId("")}
+          role="dialog"
+        >
+          <button
+            aria-label="Close zoomed photo"
+            className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full border border-stone-700/80 bg-[#12100d]/90 text-stone-300 transition hover:border-stone-500 hover:text-stone-50"
+            onClick={() => setZoomedPhotoId("")}
+            type="button"
+          >
+            <span className="text-lg leading-none">×</span>
+          </button>
+          <div
+            className="flex max-h-full w-full max-w-6xl flex-col gap-4"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+              {zoomedPhoto.imageUrl ? (
+                <img
+                  alt={zoomedPhoto.title}
+                  className="h-auto max-h-[calc(100vh-12rem)] w-auto max-w-[calc(100vw-3rem)] object-contain shadow-[0_30px_90px_rgba(0,0,0,0.45)] sm:max-w-[calc(100vw-5rem)]"
+                  src={zoomedPhoto.imageUrl}
+                />
+              ) : null}
+            </div>
+            <div className="mx-auto w-full max-w-3xl border-t border-stone-800/80 pt-4 text-center">
+              <p className="text-xl font-semibold text-stone-50">{zoomedPhoto.title}</p>
+              <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
+                {zoomedPhoto.locationName}
+              </p>
+              {zoomedPhoto.takenOn ? (
+                <p className="mt-2 text-sm text-stone-500">
+                  {formatTakenOn(zoomedPhoto.takenOn)}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
         <section className="rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
           <div className="flex items-start justify-between gap-4">
@@ -264,58 +376,97 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
               const isSelected = photo.id === selectedPhoto?.id;
 
               return (
-                <button
+                <article
                   key={photo.id}
                   className={`group mb-5 inline-block w-full break-inside-avoid overflow-hidden rounded-b-[1.5rem] border text-left align-top transition ${
                     isSelected
                       ? "border-[#8a7148] bg-[#1d1812] shadow-[0_18px_40px_rgba(138,113,72,0.14)]"
                       : "border-stone-800 bg-stone-950/70 hover:-translate-y-0.5 hover:border-stone-700"
                   }`}
-                  ref={(node) => {
-                    if (node) {
-                      galleryCardRefs.current.set(photo.id, node);
-                      return;
-                    }
-
-                    galleryCardRefs.current.delete(photo.id);
-                  }}
-                  onClick={() =>
-                    setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
-                  }
-                  type="button"
                 >
-                  <div className="overflow-hidden bg-stone-900">
-                    {renderPhotoSurface(photo, "gallery")}
-                  </div>
-                  <div className="space-y-3 p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
+                  <button
+                    className="block w-full text-left"
+                    ref={(node) => {
+                      if (node) {
+                        galleryCardRefs.current.set(photo.id, node);
+                        return;
+                      }
+
+                      galleryCardRefs.current.delete(photo.id);
+                    }}
+                    onClick={() =>
+                      setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
+                    }
+                    type="button"
+                  >
+                    <div className="overflow-hidden bg-stone-900">
+                      {renderPhotoSurface(photo, "gallery")}
+                    </div>
+                  </button>
+                  <div className="relative p-5 pr-24">
+                    <button
+                      className="block w-full text-left"
+                      onClick={() =>
+                        setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
+                      }
+                      type="button"
+                    >
+                      <div className="space-y-1">
                         <h3 className="text-lg font-semibold text-stone-50">
                           {photo.title}
                         </h3>
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-500">
+                        <p className="text-xs uppercase tracking-[0.18em] text-stone-500">
                           {photo.locationName}
                         </p>
                       </div>
-                      <span className="rounded-full border border-stone-700 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-stone-500">
-                        map
-                      </span>
-                    </div>
+                    </button>
                     {photo.description ? (
-                      <p className="text-sm leading-6 text-stone-300">{photo.description}</p>
+                      <button
+                        className="mt-3 block w-full text-left text-sm leading-6 text-stone-300"
+                        onClick={() =>
+                          setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
+                        }
+                        type="button"
+                      >
+                        {photo.description}
+                      </button>
                     ) : null}
-                    <p className="text-xs text-stone-500">
+                    <button
+                      className="mt-3 block text-left text-xs text-stone-500"
+                      onClick={() =>
+                        setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
+                      }
+                      type="button"
+                    >
                       {photo.takenOn ? `${formatTakenOn(photo.takenOn)} | ` : ""}
                       {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
-                    </p>
+                    </button>
+                    <div className="absolute bottom-5 right-5 flex gap-2">
+                      <button
+                        aria-label={`Show ${photo.title} on the map`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-700 text-stone-500 transition hover:border-stone-500 hover:text-stone-300"
+                        onClick={() => selectPhotoAndScrollToMap(photo.id)}
+                        type="button"
+                      >
+                        <MapPinIcon />
+                      </button>
+                      <button
+                        aria-label={`Zoom ${photo.title}`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-700 text-stone-500 transition hover:border-stone-500 hover:text-stone-300"
+                        onClick={() => setZoomedPhotoId(photo.id)}
+                        type="button"
+                      >
+                        <MagnifierIcon />
+                      </button>
+                    </div>
                   </div>
-                </button>
+                </article>
               );
             })}
           </div>
         </section>
 
-        <section>
+        <section ref={mapSectionRef}>
           <div className="overflow-hidden rounded-[2rem] border border-stone-800/80 bg-[#12100d]/88 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
             <div className="flex items-center justify-between gap-4 border-b border-stone-800/80 px-6 py-4 sm:px-8">
               <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
