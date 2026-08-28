@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import PhotoMapShell from "@/app/components/photo-map-shell";
 import { formatTakenOn } from "@/lib/photo-date";
@@ -51,6 +51,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [selectedPhotoId, setSelectedPhotoId] = useState("");
   const [isAccessOpen, setIsAccessOpen] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
+  const galleryCardRefs = useRef(new Map<string, HTMLButtonElement>());
 
   const selectedPhoto = useMemo(
     () => photos.find((photo) => photo.id === selectedPhotoId),
@@ -78,6 +79,17 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
     return () => window.clearInterval(interval);
   }, [photos]);
+
+  function selectPhotoAndScrollToGallery(photoId: string) {
+    setSelectedPhotoId(photoId);
+
+    window.requestAnimationFrame(() => {
+      galleryCardRefs.current.get(photoId)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }
 
   function renderPhotoSurface(photo: Photo, mode: "hero" | "gallery") {
     if (!photo.imageUrl) {
@@ -210,14 +222,19 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
             <div className="overflow-hidden rounded-[1.6rem] border border-stone-800/80 bg-[#12100d]/80 lg:justify-self-end">
               {heroPhoto ? (
-                <div className="relative aspect-[16/10]">
+                <button
+                  aria-label={`Open ${heroPhoto.title} in the gallery`}
+                  className="relative block aspect-[16/10] w-full text-left"
+                  onClick={() => selectPhotoAndScrollToGallery(heroPhoto.id)}
+                  type="button"
+                >
                   {renderPhotoSurface(heroPhoto, "hero")}
                   <div className="absolute inset-x-0 bottom-0 border-t border-stone-800/80 bg-[#12100d] px-5 py-4">
                     <p className="text-right text-xs uppercase tracking-[0.22em] text-stone-300">
                       {heroPhoto.locationName}
                     </p>
                   </div>
-                </div>
+                </button>
               ) : (
                 <div className="flex aspect-[16/10] items-center justify-center text-sm text-stone-500">
                   Add your first frame to start the archive.
@@ -254,6 +271,14 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       ? "border-[#8a7148] bg-[#1d1812] shadow-[0_18px_40px_rgba(138,113,72,0.14)]"
                       : "border-stone-800 bg-stone-950/70 hover:-translate-y-0.5 hover:border-stone-700"
                   }`}
+                  ref={(node) => {
+                    if (node) {
+                      galleryCardRefs.current.set(photo.id, node);
+                      return;
+                    }
+
+                    galleryCardRefs.current.delete(photo.id);
+                  }}
                   onClick={() =>
                     setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
                   }
