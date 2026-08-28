@@ -8,6 +8,7 @@ export type Photo = {
   description: string;
   imageUrl: string;
   locationName: string;
+  countryName: string;
   takenOn: string | null;
   lat: number;
   lng: number;
@@ -19,6 +20,7 @@ export type PhotoDraft = {
   description: string;
   imageUrl: string;
   locationName: string;
+  countryName: string;
   takenOn: string | null;
   lat: number;
   lng: number;
@@ -63,12 +65,15 @@ export async function getPhotos(): Promise<Photo[]> {
   await ensureDataFile();
 
   const raw = await fs.readFile(photosFilePath, "utf8");
-  const parsed = JSON.parse(raw) as Array<Photo & { takenOn?: string | null }>;
+  const parsed = JSON.parse(raw) as Array<
+    Photo & { takenOn?: string | null; countryName?: string | null }
+  >;
 
   return parsed
     .map((photo) => ({
       ...photo,
       description: photo.description ?? "",
+      countryName: String(photo.countryName ?? "").trim(),
       imageUrl: normalizeImageUrl(photo.imageUrl ?? ""),
       takenOn: photo.takenOn ?? null,
     }))
@@ -82,6 +87,7 @@ export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
     description: draft.description.trim(),
     imageUrl: normalizeImageUrl(draft.imageUrl),
     locationName: draft.locationName.trim(),
+    countryName: draft.countryName.trim(),
     takenOn: draft.takenOn,
     lat: draft.lat,
     lng: draft.lng,
@@ -113,6 +119,7 @@ export async function updatePhoto(photoId: string, draft: PhotoDraft): Promise<P
     description: draft.description.trim(),
     imageUrl: normalizeImageUrl(draft.imageUrl),
     locationName: draft.locationName.trim(),
+    countryName: draft.countryName.trim(),
     takenOn: draft.takenOn,
     lat: draft.lat,
     lng: draft.lng,
@@ -160,6 +167,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
   const description = String(draft.description ?? "").trim();
   const imageUrl = String(draft.imageUrl ?? "").trim();
   const locationName = String(draft.locationName ?? "").trim();
+  const countryName = String(draft.countryName ?? "").trim();
   const takenOn = parseTakenOn(draft.takenOn);
   const lat = Number(draft.lat);
   const lng = Number(draft.lng);
@@ -181,6 +189,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
     description,
     imageUrl,
     locationName,
+    countryName,
     takenOn,
     lat,
     lng,
