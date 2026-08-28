@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "import:photos": "node scripts/import-photos-to-supabase.mjs",
     "lint": "eslint",
     "postinstall": "prisma skills sync || exit 0"
   },

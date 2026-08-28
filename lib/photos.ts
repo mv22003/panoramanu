@@ -1,6 +1,6 @@
-import { randomUUID } from "node:crypto";
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import "server-only";
+
+import { createClient } from "@supabase/supabase-js";
 
 export type Photo = {
   id: string;
@@ -26,7 +26,20 @@ export type PhotoDraft = {
   lng: number;
 };
 
-const photosFilePath = path.join(process.cwd(), "data", "photos.json");
+type PhotoRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  location_name: string | null;
+  country_name: string | null;
+  taken_on: string | null;
+  lat: number;
+  lng: number;
+  created_at: string;
+};
+
+const photosTable = process.env.SUPABASE_PHOTOS_TABLE?.trim() || "photos";
 
 function normalizeImageUrl(value: string) {
   const normalized = value.trim().replace(/\\/g, "/");
@@ -46,101 +59,148 @@ function normalizeImageUrl(value: string) {
   return `/${normalized}`;
 }
 
-async function ensureDataFile() {
-  await fs.mkdir(path.dirname(photosFilePath), { recursive: true });
-
-  try {
-    await fs.access(photosFilePath);
-  } catch {
-    await fs.writeFile(photosFilePath, "[]\n", "utf8");
-  }
+function getSupabaseSecretKey() {
+  return (
+    process.env.SUPABASE_SECRET_KEY?.trim() ??
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ??
+    ""
+  );
 }
 
-async function writePhotos(photos: Photo[]) {
-  await ensureDataFile();
-  await fs.writeFile(photosFilePath, `${JSON.stringify(photos, null, 2)}\n`, "utf8");
+function createPhotosClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
+  const secretKey = getSupabaseSecretKey();
+
+  if (!url || !secretKey) {
+    throw new Error(
+      "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY before loading photos.",
+    );
+  }
+
+  return createClient(url, secretKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
+function mapPhotoRow(row: PhotoRow): Photo {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description ?? "",
+    imageUrl: normalizeImageUrl(row.image_url ?? ""),
+    locationName: String(row.location_name ?? "").trim(),
+    countryName: String(row.country_name ?? "").trim(),
+    takenOn: row.taken_on ?? null,
+    lat: Number(row.lat),
+    lng: Number(row.lng),
+    createdAt: row.created_at,
+  };
+}
+
+function mapPhotoDraft(draft: PhotoDraft) {
+  return {
+    title: draft.title.trim(),
+    description: draft.description.trim(),
+    image_url: normalizeImageUrl(draft.imageUrl),
+    location_name: draft.locationName.trim(),
+    country_name: draft.countryName.trim(),
+    taken_on: draft.takenOn,
+    lat: draft.lat,
+    lng: draft.lng,
+  };
 }
 
 export async function getPhotos(): Promise<Photo[]> {
-  await ensureDataFile();
+  const client = createPhotosClient();
+  const { data, error } = await client
+    .from(photosTable)
+    .select(
+      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
+    )
+    .order("created_at", { ascending: false });
 
-  const raw = await fs.readFile(photosFilePath, "utf8");
-  const parsed = JSON.parse(raw) as Array<
-    Photo & { takenOn?: string | null; countryName?: string | null }
-  >;
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  return parsed
-    .map((photo) => ({
-      ...photo,
-      description: photo.description ?? "",
-      countryName: String(photo.countryName ?? "").trim(),
-      imageUrl: normalizeImageUrl(photo.imageUrl ?? ""),
-      takenOn: photo.takenOn ?? null,
-    }))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return (data ?? []).map((row) => mapPhotoRow(row as PhotoRow));
 }
 
 export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
-  const photo: Photo = {
-    id: randomUUID(),
-    title: draft.title.trim(),
-    description: draft.description.trim(),
-    imageUrl: normalizeImageUrl(draft.imageUrl),
-    locationName: draft.locationName.trim(),
-    countryName: draft.countryName.trim(),
-    takenOn: draft.takenOn,
-    lat: draft.lat,
-    lng: draft.lng,
-    createdAt: new Date().toISOString(),
-  };
+  const client = createPhotosClient();
+  const { data, error } = await client
+    .from(photosTable)
+    .insert(mapPhotoDraft(draft))
+    .select(
+      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
+    )
+    .single();
 
-  const photos = await getPhotos();
-  await writePhotos([photo, ...photos]);
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  return photo;
+  return mapPhotoRow(data as PhotoRow);
 }
 
 export async function getPhotoById(photoId: string) {
-  const photos = await getPhotos();
-  return photos.find((photo) => photo.id === photoId) ?? null;
+  const client = createPhotosClient();
+  const { data, error } = await client
+    .from(photosTable)
+    .select(
+      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
+    )
+    .eq("id", photoId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ? mapPhotoRow(data as PhotoRow) : null;
 }
 
 export async function updatePhoto(photoId: string, draft: PhotoDraft): Promise<Photo> {
-  const photos = await getPhotos();
-  const existingPhoto = photos.find((photo) => photo.id === photoId);
+  const client = createPhotosClient();
+  const { data, error } = await client
+    .from(photosTable)
+    .update(mapPhotoDraft(draft))
+    .eq("id", photoId)
+    .select(
+      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
+    )
+    .maybeSingle();
 
-  if (!existingPhoto) {
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
     throw new Error("Photo not found.");
   }
 
-  const updatedPhoto: Photo = {
-    ...existingPhoto,
-    title: draft.title.trim(),
-    description: draft.description.trim(),
-    imageUrl: normalizeImageUrl(draft.imageUrl),
-    locationName: draft.locationName.trim(),
-    countryName: draft.countryName.trim(),
-    takenOn: draft.takenOn,
-    lat: draft.lat,
-    lng: draft.lng,
-  };
-
-  await writePhotos(
-    photos.map((photo) => (photo.id === photoId ? updatedPhoto : photo)),
-  );
-
-  return updatedPhoto;
+  return mapPhotoRow(data as PhotoRow);
 }
 
 export async function deletePhoto(photoId: string) {
-  const photos = await getPhotos();
-  const nextPhotos = photos.filter((photo) => photo.id !== photoId);
+  const client = createPhotosClient();
+  const { data, error } = await client
+    .from(photosTable)
+    .delete()
+    .eq("id", photoId)
+    .select("id")
+    .maybeSingle();
 
-  if (nextPhotos.length === photos.length) {
-    throw new Error("Photo not found.");
+  if (error) {
+    throw new Error(error.message);
   }
 
-  await writePhotos(nextPhotos);
+  if (!data) {
+    throw new Error("Photo not found.");
+  }
 }
 
 function parseTakenOn(value: unknown) {
