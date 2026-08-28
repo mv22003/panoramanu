@@ -1,17 +1,43 @@
+import "server-only";
+
 import { randomUUID } from "node:crypto";
-import { promises as fs } from "node:fs";
 import path from "node:path";
 
-const uploadsDirPath = path.join(process.cwd(), "public", "uploads");
+import { createClient } from "@supabase/supabase-js";
+
+function getStorageBucket() {
+  return process.env.SUPABASE_STORAGE_BUCKET?.trim() ?? "";
+}
+
+function getSupabaseSecretKey() {
+  return (
+    process.env.SUPABASE_SECRET_KEY?.trim() ??
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ??
+    ""
+  );
+}
+
+function createStorageClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
+  const secretKey = getSupabaseSecretKey();
+
+  if (!url || !secretKey || !getStorageBucket()) {
+    throw new Error(
+      "Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY, and SUPABASE_STORAGE_BUCKET before uploading files.",
+    );
+  }
+
+  return createClient(url, secretKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
 
 function getExtension(filename: string) {
   const extension = path.extname(filename).toLowerCase();
-
-  if (extension) {
-    return extension;
-  }
-
-  return ".jpg";
+  return extension || ".jpg";
 }
 
 export async function saveUploadedPhoto(file: File) {
@@ -23,13 +49,22 @@ export async function saveUploadedPhoto(file: File) {
     throw new Error("Uploaded files must be images.");
   }
 
-  await fs.mkdir(uploadsDirPath, { recursive: true });
-
+  const bucket = getStorageBucket();
+  const client = createStorageClient();
   const filename = `${randomUUID()}${getExtension(file.name)}`;
-  const filePath = path.join(uploadsDirPath, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const objectPath = `photos/${filename}`;
 
-  await fs.writeFile(filePath, buffer);
+  const { error: uploadError } = await client.storage.from(bucket).upload(objectPath, file, {
+    cacheControl: "3600",
+    contentType: file.type || undefined,
+    upsert: false,
+  });
 
-  return `/uploads/${filename}`;
+  if (uploadError) {
+    throw new Error(uploadError.message);
+  }
+
+  const { data } = client.storage.from(bucket).getPublicUrl(objectPath);
+
+  return data.publicUrl;
 }

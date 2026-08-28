@@ -42,6 +42,39 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
     return () => window.clearInterval(interval);
   }, [photos]);
 
+  function renderPhotoSurface(photo: Photo, mode: "hero" | "gallery") {
+    if (!photo.imageUrl) {
+      return (
+        <div
+          className={`flex items-center justify-center bg-[radial-gradient(circle_at_top,#2a241d_0%,#16120e_60%,#0f0d0a_100%)] text-stone-500 ${
+            mode === "hero" ? "h-full w-full" : "aspect-[4/3]"
+          }`}
+        >
+          <div className="px-6 text-center">
+            <p className="text-xs uppercase tracking-[0.24em] text-stone-600">
+              Image pending
+            </p>
+            <p className="mt-3 text-sm text-stone-500">
+              Upload this frame from the admin area to restore the preview.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <img
+        alt={photo.title}
+        className={
+          mode === "hero"
+            ? "h-full w-full object-cover"
+            : "h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+        }
+        src={photo.imageUrl}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100">
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
@@ -120,11 +153,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             <div className="overflow-hidden rounded-[1.6rem] border border-stone-800/80 bg-[#12100d]/80">
               {heroPhoto ? (
                 <div className="relative aspect-[4/3]">
-                  <img
-                    alt={heroPhoto.title}
-                    className="h-full w-full object-cover"
-                    src={heroPhoto.imageUrl}
-                  />
+                  {renderPhotoSurface(heroPhoto, "hero")}
                   <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(11,10,8,0)_0%,rgba(11,10,8,0.82)_68%,rgba(11,10,8,0.96)_100%)] p-5">
                     <p className="text-xs uppercase tracking-[0.24em] text-stone-400">
                       Slideshow
@@ -177,11 +206,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   type="button"
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-stone-900">
-                    <img
-                      alt={photo.title}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                      src={photo.imageUrl}
-                    />
+                    {renderPhotoSurface(photo, "gallery")}
                   </div>
                   <div className="space-y-3 p-5">
                     <div className="flex items-start justify-between gap-4">

@@ -82,6 +82,9 @@ export default function AdminForm({ photo }: AdminFormProps) {
           name="imageFile"
           type="file"
         />
+        <span className="mt-2 block text-xs leading-6 text-stone-500">
+          Uploaded files are stored in Supabase Storage when it is configured.
+        </span>
       </label>
 
       <label className="block">
