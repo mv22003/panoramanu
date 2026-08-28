@@ -83,7 +83,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
               35mm film journal
             </p>
-            <div className="relative">
+            <div className="relative z-20">
               <button
                 aria-expanded={isAccessOpen}
                 aria-label="Toggle access menu"
@@ -98,7 +98,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                 </span>
               </button>
               <div
-                className={`absolute right-0 top-12 w-44 rounded-[1.25rem] border border-stone-800/80 bg-[#12100d]/96 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)] transition ${
+                className={`absolute right-0 top-12 z-10 w-44 rounded-[1.25rem] border border-stone-800/80 bg-[#12100d]/96 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)] transition ${
                   isAccessOpen
                     ? "pointer-events-auto translate-y-0 opacity-100"
                     : "pointer-events-none -translate-y-2 opacity-0"
