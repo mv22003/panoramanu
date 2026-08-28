@@ -2,25 +2,28 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import AdminForm from "@/app/admin/admin-form";
-import { isAdminClaims, isSupabaseConfigured } from "@/lib/auth";
-import { getPhotos } from "@/lib/photos";
-import { createClient } from "@/lib/supabase/server";
+import { removePhoto } from "@/app/admin/actions";
+import { hasAdminSession, isAdminAuthConfigured } from "@/lib/auth";
+import { getPhotoById, getPhotos } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
-  if (!isSupabaseConfigured()) {
+type AdminPageProps = {
+  searchParams: Promise<{ edit?: string }>;
+};
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
+  if (!isAdminAuthConfigured()) {
+    redirect("/login?error=setup");
+  }
+
+  if (!(await hasAdminSession())) {
     redirect("/login");
   }
 
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-
-  if (!isAdminClaims(data?.claims)) {
-    redirect("/login");
-  }
-
+  const { edit } = await searchParams;
   const photos = await getPhotos();
+  const editingPhoto = edit ? await getPhotoById(edit) : null;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
@@ -56,9 +59,25 @@ export default async function AdminPage() {
 
       <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-stone-500">New frame</p>
-          <h2 className="mt-3 text-2xl font-semibold text-stone-50">Add a photo</h2>
-          <AdminForm />
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
+                {editingPhoto ? "Edit frame" : "New frame"}
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold text-stone-50">
+                {editingPhoto ? "Update photo" : "Add a photo"}
+              </h2>
+            </div>
+            {editingPhoto ? (
+              <Link
+                className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:border-stone-600 hover:text-stone-50"
+                href="/admin"
+              >
+                Cancel
+              </Link>
+            ) : null}
+          </div>
+          <AdminForm photo={editingPhoto} />
         </div>
 
         <div className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
@@ -85,11 +104,38 @@ export default async function AdminPage() {
                       {photo.locationName}
                     </p>
                   </div>
-                  <p className="text-xs text-stone-500">
-                    {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
-                  </p>
+                  <div className="text-right">
+                    <p className="text-xs text-stone-500">
+                      {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
+                    </p>
+                    {photo.takenOn ? (
+                      <p className="mt-2 text-xs uppercase tracking-[0.18em] text-stone-600">
+                        {photo.takenOn}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-stone-300">{photo.description}</p>
+                {photo.description ? (
+                  <p className="mt-3 text-sm leading-6 text-stone-300">{photo.description}</p>
+                ) : (
+                  <p className="mt-3 text-sm italic text-stone-500">No description</p>
+                )}
+                <div className="mt-5 flex gap-3">
+                  <Link
+                    className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:border-stone-600 hover:text-stone-50"
+                    href={`/admin?edit=${photo.id}`}
+                  >
+                    Edit
+                  </Link>
+                  <form action={removePhoto.bind(null, photo.id)}>
+                    <button
+                      className="rounded-full border border-red-400/40 px-4 py-2 text-sm text-red-200 transition hover:border-red-300/60 hover:text-red-100"
+                      type="submit"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                </div>
               </div>
             ))}
           </div>

@@ -2,38 +2,54 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createPhoto, parsePhotoDraft } from "@/lib/photos";
-import { isAdminClaims } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminSession } from "@/lib/auth";
+import { saveUploadedPhoto } from "@/lib/photo-assets";
+import { createPhoto, deletePhoto, parsePhotoDraft, updatePhoto } from "@/lib/photos";
 
 export type AdminFormState = {
   error: string;
   message: string;
 };
 
+async function requireAdmin() {
+  await requireAdminSession();
+}
+
 export async function addPhoto(
   _prevState: AdminFormState,
   formData: FormData,
 ): Promise<AdminFormState> {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-
-  if (!isAdminClaims(data?.claims)) {
-    return {
-      error: "Only the admin user can add photos.",
-      message: "",
-    };
-  }
-
   try {
-    const draft = parsePhotoDraft(Object.fromEntries(formData.entries()));
-    await createPhoto(draft);
+    await requireAdmin();
+
+    const photoId = String(formData.get("photoId") ?? "").trim();
+    const uploadedFile = formData.get("imageFile");
+    const uploadedImageUrl =
+      uploadedFile instanceof File && uploadedFile.size > 0
+        ? await saveUploadedPhoto(uploadedFile)
+        : "";
+    const fallbackImageUrl = String(formData.get("existingImageUrl") ?? "").trim();
+
+    const draft = parsePhotoDraft({
+      ...Object.fromEntries(formData.entries()),
+      imageUrl:
+        uploadedImageUrl || String(formData.get("imageUrl") ?? "").trim() || fallbackImageUrl,
+    });
+
+    if (photoId) {
+      await updatePhoto(photoId, draft);
+    } else {
+      await createPhoto(draft);
+    }
+
     revalidatePath("/");
     revalidatePath("/admin");
 
     return {
       error: "",
-      message: "Photo added to the collection.",
+      message: photoId
+        ? "Photo updated in the collection."
+        : "Photo added to the collection.",
     };
   } catch (error) {
     return {
@@ -41,4 +57,11 @@ export async function addPhoto(
       message: "",
     };
   }
+}
+
+export async function removePhoto(photoId: string) {
+  await requireAdmin();
+  await deletePhoto(photoId);
+  revalidatePath("/");
+  revalidatePath("/admin");
 }

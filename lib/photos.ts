@@ -8,6 +8,7 @@ export type Photo = {
   description: string;
   imageUrl: string;
   locationName: string;
+  takenOn: string | null;
   lat: number;
   lng: number;
   createdAt: string;
@@ -18,11 +19,30 @@ export type PhotoDraft = {
   description: string;
   imageUrl: string;
   locationName: string;
+  takenOn: string | null;
   lat: number;
   lng: number;
 };
 
 const photosFilePath = path.join(process.cwd(), "data", "photos.json");
+
+function normalizeImageUrl(value: string) {
+  const normalized = value.trim().replace(/\\/g, "/");
+
+  if (!normalized) {
+    return "";
+  }
+
+  if (
+    normalized.startsWith("/") ||
+    normalized.startsWith("http://") ||
+    normalized.startsWith("https://")
+  ) {
+    return normalized;
+  }
+
+  return `/${normalized}`;
+}
 
 async function ensureDataFile() {
   await fs.mkdir(path.dirname(photosFilePath), { recursive: true });
@@ -43,9 +63,16 @@ export async function getPhotos(): Promise<Photo[]> {
   await ensureDataFile();
 
   const raw = await fs.readFile(photosFilePath, "utf8");
-  const parsed = JSON.parse(raw) as Photo[];
+  const parsed = JSON.parse(raw) as Array<Photo & { takenOn?: string | null }>;
 
-  return parsed.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return parsed
+    .map((photo) => ({
+      ...photo,
+      description: photo.description ?? "",
+      imageUrl: normalizeImageUrl(photo.imageUrl ?? ""),
+      takenOn: photo.takenOn ?? null,
+    }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
@@ -53,8 +80,9 @@ export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
     id: randomUUID(),
     title: draft.title.trim(),
     description: draft.description.trim(),
-    imageUrl: draft.imageUrl.trim(),
+    imageUrl: normalizeImageUrl(draft.imageUrl),
     locationName: draft.locationName.trim(),
+    takenOn: draft.takenOn,
     lat: draft.lat,
     lng: draft.lng,
     createdAt: new Date().toISOString(),
@@ -64,6 +92,62 @@ export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
   await writePhotos([photo, ...photos]);
 
   return photo;
+}
+
+export async function getPhotoById(photoId: string) {
+  const photos = await getPhotos();
+  return photos.find((photo) => photo.id === photoId) ?? null;
+}
+
+export async function updatePhoto(photoId: string, draft: PhotoDraft): Promise<Photo> {
+  const photos = await getPhotos();
+  const existingPhoto = photos.find((photo) => photo.id === photoId);
+
+  if (!existingPhoto) {
+    throw new Error("Photo not found.");
+  }
+
+  const updatedPhoto: Photo = {
+    ...existingPhoto,
+    title: draft.title.trim(),
+    description: draft.description.trim(),
+    imageUrl: normalizeImageUrl(draft.imageUrl),
+    locationName: draft.locationName.trim(),
+    takenOn: draft.takenOn,
+    lat: draft.lat,
+    lng: draft.lng,
+  };
+
+  await writePhotos(
+    photos.map((photo) => (photo.id === photoId ? updatedPhoto : photo)),
+  );
+
+  return updatedPhoto;
+}
+
+export async function deletePhoto(photoId: string) {
+  const photos = await getPhotos();
+  const nextPhotos = photos.filter((photo) => photo.id !== photoId);
+
+  if (nextPhotos.length === photos.length) {
+    throw new Error("Photo not found.");
+  }
+
+  await writePhotos(nextPhotos);
+}
+
+function parseTakenOn(value: unknown) {
+  const takenOn = String(value ?? "").trim();
+
+  if (!takenOn) {
+    return null;
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(takenOn)) {
+    throw new Error("Date must use YYYY-MM-DD.");
+  }
+
+  return takenOn;
 }
 
 export function parsePhotoDraft(input: unknown): PhotoDraft {
@@ -76,11 +160,12 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
   const description = String(draft.description ?? "").trim();
   const imageUrl = String(draft.imageUrl ?? "").trim();
   const locationName = String(draft.locationName ?? "").trim();
+  const takenOn = parseTakenOn(draft.takenOn);
   const lat = Number(draft.lat);
   const lng = Number(draft.lng);
 
-  if (!title || !description || !imageUrl || !locationName) {
-    throw new Error("All fields are required.");
+  if (!title || !imageUrl || !locationName) {
+    throw new Error("Title, image, and location are required.");
   }
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -96,6 +181,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
     description,
     imageUrl,
     locationName,
+    takenOn,
     lat,
     lng,
   };

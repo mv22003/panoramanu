@@ -1,20 +1,24 @@
-import { redirect } from "next/navigation";
-
 import LoginForm from "@/app/login/login-form";
-import { getAdminEmail, isAdminClaims, isSupabaseConfigured } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { isAdminAuthConfigured } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
+type LoginPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
 
-export default async function LoginPage() {
-  if (isSupabaseConfigured()) {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getClaims();
-
-    if (isAdminClaims(data?.claims)) {
-      redirect("/admin");
-    }
+function getErrorMessage(error: string | undefined) {
+  switch (error) {
+    case "invalid-key":
+      return "That admin key is not valid.";
+    case "setup":
+      return "Add ADMIN_ACCESS_KEY and ADMIN_SESSION_SECRET to your local environment.";
+    default:
+      return "";
   }
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { error } = await searchParams;
+  const errorMessage = getErrorMessage(error);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl items-center px-5 py-10 sm:px-8">
@@ -24,16 +28,16 @@ export default async function LoginPage() {
           Sign in to manage panoramanu
         </h1>
         <p className="mt-4 text-sm leading-7 text-stone-300">
-          The public homepage stays photo-first. Only the configured admin email
-          can receive a sign-in link and access the management screen.
+          The public homepage stays photo-first. Use your private admin key to
+          access the management screen without relying on email delivery.
         </p>
 
-        {isSupabaseConfigured() ? (
-          <LoginForm adminEmail={getAdminEmail()} />
+        {isAdminAuthConfigured() ? (
+          <LoginForm error={errorMessage} />
         ) : (
           <div className="mt-8 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-5 text-sm leading-7 text-amber-100">
-            Add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
-            and `ADMIN_EMAIL` to your local environment before using auth.
+            Add `ADMIN_ACCESS_KEY` and `ADMIN_SESSION_SECRET` to your local
+            environment before using admin access.
           </div>
         )}
       </section>

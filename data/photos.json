@@ -1,32 +1,24 @@
 [
   {
+    "id": "ea9e8b92-b7b2-4af9-bf58-f528136593f2",
+    "title": "| cows.",
+    "description": "",
+    "imageUrl": "/samples/cows-sudbury.png",
+    "locationName": "Sudbury, Suffolk",
+    "takenOn": null,
+    "lat": 52.035987,
+    "lng": 0.737313,
+    "createdAt": "2026-08-28T10:37:31.166Z"
+  },
+  {
     "id": "ba610792-47db-4bec-bef2-fae1ad786496",
     "title": "| sonder.",
-    "description": "july 2024",
-    "imageUrl": "samples\\R1-06115-0012-f.png",
+    "description": "",
+    "imageUrl": "/samples/R1-06115-0012-f.png",
     "locationName": "Covent Garden, Soho",
+    "takenOn": "2024-07-01",
     "lat": 51.511893,
     "lng": -0.123596,
     "createdAt": "2026-08-28T09:26:50.543Z"
-  },
-  {
-    "id": "london-streets",
-    "title": "London Streets",
-    "description": "Kodak Portra 400",
-    "imageUrl": "https://via.placeholder.com/1200x900/f0ebe2/2d241c?text=London+Streets",
-    "locationName": "Soho, London",
-    "lat": 51.5074,
-    "lng": -0.1278,
-    "createdAt": "2026-08-28T09:00:00.000Z"
-  },
-  {
-    "id": "park-bench",
-    "title": "Park Bench",
-    "description": "Fujifilm Superia 200",
-    "imageUrl": "https://via.placeholder.com/1200x900/e8dfd0/2d241c?text=Park+Bench",
-    "locationName": "Bloomsbury, London",
-    "lat": 51.5133,
-    "lng": -0.1162,
-    "createdAt": "2026-08-27T16:30:00.000Z"
   }
 ]

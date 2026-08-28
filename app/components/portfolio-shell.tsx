@@ -1,19 +1,9 @@
 'use client'
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import PhotoMapShell from "@/app/components/photo-map-shell";
 import type { Photo } from "@/lib/photos";
-
-const PhotoMap = dynamic(() => import("@/app/components/photo-map"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-[420px] items-center justify-center rounded-[2rem] border border-stone-800 bg-stone-900/70 text-sm text-stone-400">
-      Loading map...
-    </div>
-  ),
-});
 
 type PortfolioShellProps = {
   initialPhotos: Photo[];
@@ -37,12 +27,12 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
               <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
                 35mm photo portfolio
               </p>
-              <Link
+              <a
                 className="rounded-full border border-stone-700 px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] text-stone-400 transition hover:border-stone-600 hover:text-stone-200"
                 href="/login"
               >
                 Admin
-              </Link>
+              </a>
             </div>
             <h1 className="mt-3 max-w-xl text-4xl font-semibold tracking-tight text-stone-50 sm:text-5xl">
               panoramanu
@@ -60,12 +50,17 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             </p>
             {selectedPhoto ? (
               <>
-                <h2 className="mt-3 text-2xl font-semibold text-stone-50">{selectedPhoto.title}</h2>
-                <p className="mt-3 text-sm leading-7 text-stone-300">
-                  {selectedPhoto.description}
-                </p>
+                <h2 className="mt-3 text-2xl font-semibold text-stone-50">
+                  {selectedPhoto.title}
+                </h2>
+                {selectedPhoto.description ? (
+                  <p className="mt-3 text-sm leading-7 text-stone-300">
+                    {selectedPhoto.description}
+                  </p>
+                ) : null}
                 <div className="mt-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.18em] text-amber-200/70">
                   <span>{selectedPhoto.locationName}</span>
+                  {selectedPhoto.takenOn ? <span>{selectedPhoto.takenOn}</span> : null}
                   <span>
                     {selectedPhoto.lat.toFixed(4)}, {selectedPhoto.lng.toFixed(4)}
                   </span>
@@ -84,7 +79,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Map view</p>
             <p className="text-xs text-stone-500">{photos.length} photos</p>
           </div>
-          <PhotoMap
+          <PhotoMapShell
             onSelectPhoto={setSelectedPhotoId}
             photos={photos}
             selectedPhotoId={selectedPhoto?.id ?? ""}
@@ -142,8 +137,11 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                         map
                       </span>
                     </div>
-                    <p className="text-sm leading-6 text-stone-300">{photo.description}</p>
+                    {photo.description ? (
+                      <p className="text-sm leading-6 text-stone-300">{photo.description}</p>
+                    ) : null}
                     <p className="text-xs text-stone-500">
+                      {photo.takenOn ? `${photo.takenOn} | ` : ""}
                       {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
                     </p>
                   </div>

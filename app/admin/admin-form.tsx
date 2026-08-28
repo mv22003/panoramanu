@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import type { Photo } from "@/lib/photos";
 import { addPhoto, type AdminFormState } from "@/app/admin/actions";
 
 const initialAdminFormState: AdminFormState = {
@@ -9,11 +10,19 @@ const initialAdminFormState: AdminFormState = {
   message: "",
 };
 
-export default function AdminForm() {
+type AdminFormProps = {
+  photo?: Photo | null;
+};
+
+export default function AdminForm({ photo }: AdminFormProps) {
   const [state, formAction, pending] = useActionState(addPhoto, initialAdminFormState);
+  const isEditing = Boolean(photo);
 
   return (
     <form action={formAction} className="mt-8 space-y-4">
+      <input name="photoId" type="hidden" value={photo?.id ?? ""} />
+      <input name="existingImageUrl" type="hidden" value={photo?.imageUrl ?? ""} />
+
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
           Title
@@ -21,6 +30,7 @@ export default function AdminForm() {
         <input
           className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
           name="title"
+          defaultValue={photo?.title ?? ""}
           placeholder="Rain on Brick Lane"
           required
         />
@@ -28,25 +38,49 @@ export default function AdminForm() {
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Description
+          Description <span className="normal-case tracking-normal text-stone-600">(optional)</span>
         </span>
         <input
           className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
           name="description"
+          defaultValue={photo?.description ?? ""}
           placeholder="Cinestill 800T, wet pavement, late train"
-          required
         />
       </label>
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Image URL
+          Date <span className="normal-case tracking-normal text-stone-600">(optional)</span>
+        </span>
+        <input
+          className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
+          defaultValue={photo?.takenOn ?? ""}
+          name="takenOn"
+          type="date"
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
+          Image URL <span className="normal-case tracking-normal text-stone-600">(optional if uploading)</span>
         </span>
         <input
           className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
           name="imageUrl"
+          defaultValue={photo?.imageUrl ?? ""}
           placeholder="https://..."
-          required
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
+          Upload file <span className="normal-case tracking-normal text-stone-600">(optional)</span>
+        </span>
+        <input
+          accept="image/*"
+          className="block w-full rounded-2xl border border-dashed border-stone-700 bg-stone-900/60 px-4 py-4 text-sm text-stone-300 file:mr-4 file:rounded-full file:border-0 file:bg-amber-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-stone-950 hover:file:bg-amber-100"
+          name="imageFile"
+          type="file"
         />
       </label>
 
@@ -57,6 +91,7 @@ export default function AdminForm() {
         <input
           className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
           name="locationName"
+          defaultValue={photo?.locationName ?? ""}
           placeholder="Shoreditch, London"
           required
         />
@@ -71,6 +106,7 @@ export default function AdminForm() {
             className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
             inputMode="decimal"
             name="lat"
+            defaultValue={photo?.lat ?? ""}
             placeholder="51.5200"
             required
           />
@@ -84,6 +120,7 @@ export default function AdminForm() {
             className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
             inputMode="decimal"
             name="lng"
+            defaultValue={photo?.lng ?? ""}
             placeholder="-0.0750"
             required
           />
@@ -98,7 +135,7 @@ export default function AdminForm() {
         disabled={pending}
         type="submit"
       >
-        {pending ? "Saving photo..." : "Add photo"}
+        {pending ? "Saving photo..." : isEditing ? "Save changes" : "Add photo"}
       </button>
     </form>
   );

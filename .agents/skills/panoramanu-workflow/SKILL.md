@@ -20,6 +20,8 @@ Respect the product direction:
 - The site should feel like an editorial film portfolio, not a SaaS dashboard.
 - Photography is the main content; interface chrome should stay secondary.
 - Interactions should support browsing and place context, not overwhelm the images.
+- Preserve the current dark-mode direction unless the user explicitly asks to change it.
+- Preserve the current type and surface language that is already established in the homepage and admin screens.
 
 Use the references only when they are relevant:
 
@@ -31,3 +33,5 @@ When making changes in this repo, preserve the user's slow incremental workflow:
 - Keep one main concern per change when feasible.
 - Avoid introducing Prisma, forms, or deployment work unless the task actually needs it.
 - Do not "clean up" unrelated code just because it is nearby.
+- Do not run local tests, start the dev server, or initiate a localhost port unless the user explicitly asks.
+- Leave all manual verification and browser testing to the user by default.

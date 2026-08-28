@@ -1,6 +1,5 @@
 import { createPhoto, getPhotos, parsePhotoDraft } from "@/lib/photos";
-import { isAdminClaims } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { hasAdminSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +9,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-
-  if (!isAdminClaims(data?.claims)) {
+  if (!(await hasAdminSession())) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
