@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import PhotoMapShell from "@/app/components/photo-map-shell";
+import { formatTakenOn } from "@/lib/photo-date";
 import type { Photo } from "@/lib/photos";
 
 type PortfolioShellProps = {
@@ -279,7 +280,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       <p className="text-sm leading-6 text-stone-300">{photo.description}</p>
                     ) : null}
                     <p className="text-xs text-stone-500">
-                      {photo.takenOn ? `${photo.takenOn} | ` : ""}
+                      {photo.takenOn ? `${formatTakenOn(photo.takenOn)} | ` : ""}
                       {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
                     </p>
                   </div>
@@ -344,7 +345,9 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       {selectedPhoto.locationName}
                     </p>
                     {selectedPhoto.takenOn ? (
-                      <p className="text-[11px] text-stone-500">{selectedPhoto.takenOn}</p>
+                      <p className="text-[11px] text-stone-500">
+                        {formatTakenOn(selectedPhoto.takenOn)}
+                      </p>
                     ) : null}
                   </div>
                 </div>

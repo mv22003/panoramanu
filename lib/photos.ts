@@ -1,7 +1,6 @@
 import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
-
 export type Photo = {
   id: string;
   title: string;
@@ -210,8 +209,8 @@ function parseTakenOn(value: unknown) {
     return null;
   }
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(takenOn)) {
-    throw new Error("Date must use YYYY-MM-DD.");
+  if (!/^\d{4}-\d{2}(-\d{2})?$/.test(takenOn)) {
+    throw new Error("Date must use YYYY-MM or YYYY-MM-DD.");
   }
 
   return takenOn;

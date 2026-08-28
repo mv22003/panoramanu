@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import AdminForm from "@/app/admin/admin-form";
 import { removePhoto } from "@/app/admin/actions";
 import { hasAdminSession, isAdminAuthConfigured } from "@/lib/auth";
+import { formatTakenOn } from "@/lib/photo-date";
 import { getPhotoById, getPhotos } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
@@ -110,7 +111,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     </p>
                     {photo.takenOn ? (
                       <p className="mt-2 text-xs uppercase tracking-[0.18em] text-stone-600">
-                        {photo.takenOn}
+                        {formatTakenOn(photo.takenOn)}
                       </p>
                     ) : null}
                   </div>

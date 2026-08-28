@@ -29,9 +29,12 @@ export async function addPhoto(
         ? await saveUploadedPhoto(uploadedFile)
         : "";
     const fallbackImageUrl = String(formData.get("existingImageUrl") ?? "").trim();
+    const takenOnMonth = String(formData.get("takenOnMonth") ?? "").trim();
+    const takenOn = takenOnMonth ? `${takenOnMonth}-01` : "";
 
     const draft = parsePhotoDraft({
       ...Object.fromEntries(formData.entries()),
+      takenOn,
       imageUrl:
         uploadedImageUrl || String(formData.get("imageUrl") ?? "").trim() || fallbackImageUrl,
     });

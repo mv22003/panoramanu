@@ -14,6 +14,16 @@ type AdminFormProps = {
   photo?: Photo | null;
 };
 
+function getTakenOnMonth(value: string | null | undefined) {
+  const takenOn = String(value ?? "").trim();
+
+  if (!takenOn) {
+    return "";
+  }
+
+  return takenOn.slice(0, 7);
+}
+
 export default function AdminForm({ photo }: AdminFormProps) {
   const [state, formAction, pending] = useActionState(addPhoto, initialAdminFormState);
   const isEditing = Boolean(photo);
@@ -50,13 +60,13 @@ export default function AdminForm({ photo }: AdminFormProps) {
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Date <span className="normal-case tracking-normal text-stone-600">(optional)</span>
+          Date <span className="normal-case tracking-normal text-stone-600">(month and year)</span>
         </span>
         <input
           className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
-          defaultValue={photo?.takenOn ?? ""}
-          name="takenOn"
-          type="date"
+          defaultValue={getTakenOnMonth(photo?.takenOn)}
+          name="takenOnMonth"
+          type="month"
         />
       </label>
 
