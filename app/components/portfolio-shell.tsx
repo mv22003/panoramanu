@@ -9,6 +9,42 @@ type PortfolioShellProps = {
   initialPhotos: Photo[];
 };
 
+function InstagramIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-3.5 w-3.5 shrink-0"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <rect
+        height="14"
+        rx="4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        width="14"
+        x="5"
+        y="5"
+      />
+      <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="16.8" cy="7.6" fill="currentColor" r="1" />
+    </svg>
+  );
+}
+
+function GitHubIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-3.5 w-3.5 shrink-0"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 2C6.48 2 2 6.58 2 12.22c0 4.5 2.87 8.33 6.84 9.68.5.1.68-.22.68-.5 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.61.07-.61 1 .07 1.53 1.05 1.53 1.05.88 1.56 2.32 1.11 2.88.85.09-.66.34-1.11.62-1.37-2.22-.26-4.56-1.15-4.56-5.1 0-1.13.39-2.05 1.03-2.77-.1-.26-.45-1.32.1-2.75 0 0 .84-.28 2.75 1.06A9.3 9.3 0 0 1 12 6.9c.85 0 1.71.12 2.51.35 1.91-1.34 2.75-1.06 2.75-1.06.55 1.43.2 2.49.1 2.75.64.72 1.03 1.64 1.03 2.77 0 3.96-2.35 4.83-4.58 5.08.36.32.68.95.68 1.92 0 1.38-.01 2.49-.01 2.83 0 .28.18.61.69.5A10.23 10.23 0 0 0 22 12.22C22 6.58 17.52 2 12 2Z" />
+    </svg>
+  );
+}
+
 export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [photos] = useState(initialPhotos);
   const [selectedPhotoId, setSelectedPhotoId] = useState(initialPhotos[0]?.id ?? "");
@@ -128,8 +164,8 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
               </div>
             </div>
           </div>
-          <div className="mt-5 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
-            <div className="max-w-3xl">
+          <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,36rem)] lg:items-center">
+            <div className="max-w-3xl lg:self-center">
               <h1 className="text-4xl font-semibold tracking-tight text-stone-50 sm:text-5xl">
                 panoramanu
               </h1>
@@ -139,50 +175,50 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                 place, so the collection reads like a map of where the camera has
                 been.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.18em] text-stone-500">
-                <span className="rounded-full border border-stone-800/80 px-3 py-1.5 text-stone-400">
-                  {photos.length} frames
-                </span>
-                <span className="rounded-full border border-stone-800/80 px-3 py-1.5 text-stone-400">
-                  {countriesCount} {countriesCount === 1 ? "country" : "countries"}
-                </span>
-                <a
-                  className="rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
-                  href="https://instagram.com/panoramanu_"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Instagram / @panoramanu_
-                </a>
-                <a
-                  className="rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
-                  href="https://github.com/mv22003/panoramanu"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  GitHub / panoramanu
-                </a>
+              <div className="mt-6 space-y-3 text-xs uppercase tracking-[0.18em] text-stone-500">
+                <div className="flex flex-wrap gap-3">
+                  <span className="rounded-full border border-stone-800/80 px-3 py-1.5 text-stone-400">
+                    {photos.length} frames
+                  </span>
+                  <span className="rounded-full border border-stone-800/80 px-3 py-1.5 text-stone-400">
+                    {countriesCount} {countriesCount === 1 ? "country" : "countries"}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
+                    href="https://instagram.com/panoramanu_"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <InstagramIcon />
+                    Instagram / @panoramanu_
+                  </a>
+                  <a
+                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
+                    href="https://github.com/mv22003/panoramanu"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <GitHubIcon />
+                    GitHub / panoramanu
+                  </a>
+                </div>
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[1.6rem] border border-stone-800/80 bg-[#12100d]/80">
+            <div className="overflow-hidden rounded-[1.6rem] border border-stone-800/80 bg-[#12100d]/80 lg:justify-self-end">
               {heroPhoto ? (
-                <div className="relative aspect-[4/3]">
+                <div className="relative aspect-[16/10]">
                   {renderPhotoSurface(heroPhoto, "hero")}
-                  <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(11,10,8,0)_0%,rgba(11,10,8,0.82)_68%,rgba(11,10,8,0.96)_100%)] p-5">
-                    <p className="text-xs uppercase tracking-[0.24em] text-stone-400">
-                      Slideshow
-                    </p>
-                    <h2 className="mt-2 text-2xl font-semibold text-stone-50">
-                      {heroPhoto.title}
-                    </h2>
-                    <p className="mt-1 text-sm text-stone-300">
+                  <div className="absolute inset-x-0 bottom-0 border-t border-stone-800/80 bg-[#12100d] px-5 py-4">
+                    <p className="text-right text-xs uppercase tracking-[0.22em] text-stone-300">
                       {heroPhoto.locationName}
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="flex aspect-[4/3] items-center justify-center text-sm text-stone-500">
+                <div className="flex aspect-[16/10] items-center justify-center text-sm text-stone-500">
                   Add your first frame to start the archive.
                 </div>
               )}
