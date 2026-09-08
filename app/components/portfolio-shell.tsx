@@ -14,7 +14,7 @@ type GalleryView = "collection" | "calendar" | "map";
 
 const galleryViews: Array<{ id: GalleryView; label: string }> = [
   { id: "collection", label: "Gallery" },
-  { id: "calendar", label: "Calendar" },
+  { id: "calendar", label: "Timeline" },
   { id: "map", label: "Map" },
 ];
 
@@ -127,9 +127,13 @@ function AboutIcon() {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="8.5" fill="currentColor" r="1.4" />
-      <path d="M12 11.5v5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+      <circle cx="12" cy="8" r="4.5" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M3 20c.5-4 4.2-6.5 9-6.5s8.5 2.5 9 6.5H3Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
     </svg>
   );
 }
@@ -404,14 +408,6 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
               </p>
               <div className="mt-6 space-y-3 text-xs uppercase tracking-[0.18em] text-stone-500">
                 <div className="flex flex-wrap gap-3">
-                  <span className="rounded-full border border-stone-800/80 px-3 py-1.5 text-stone-400">
-                    {photos.length} frames
-                  </span>
-                  <span className="rounded-full border border-stone-800/80 px-3 py-1.5 text-stone-400">
-                    {countriesCount} {countriesCount === 1 ? "country" : "countries"}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-3">
                   <a
                     className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
                     href="https://instagram.com/panoramanu_"
@@ -420,6 +416,15 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   >
                     <InstagramIcon />
                     Instagram / @panoramanu_
+                  </a>
+                </div>
+                <div>
+                  <a
+                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
+                    href="/about"
+                  >
+                    <AboutIcon />
+                    About me
                   </a>
                 </div>
               </div>
