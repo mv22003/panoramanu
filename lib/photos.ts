@@ -6,6 +6,7 @@ export type Photo = {
   title: string;
   description: string;
   imageUrl: string;
+  slideshowImageUrl: string;
   locationName: string;
   countryName: string;
   takenOn: string | null;
@@ -18,6 +19,7 @@ export type PhotoDraft = {
   title: string;
   description: string;
   imageUrl: string;
+  slideshowImageUrl: string;
   locationName: string;
   countryName: string;
   takenOn: string | null;
@@ -30,6 +32,7 @@ type PhotoRow = {
   title: string;
   description: string | null;
   image_url: string | null;
+  slideshow_image_url?: string | null;
   location_name: string | null;
   country_name: string | null;
   taken_on: string | null;
@@ -39,6 +42,10 @@ type PhotoRow = {
 };
 
 const photosTable = process.env.SUPABASE_PHOTOS_TABLE?.trim() || "photos";
+const photoColumns =
+  "id, title, description, image_url, slideshow_image_url, location_name, country_name, taken_on, lat, lng, created_at";
+const legacyPhotoColumns =
+  "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at";
 
 function normalizeImageUrl(value: string) {
   const normalized = value.trim().replace(/\\/g, "/");
@@ -90,6 +97,7 @@ function mapPhotoRow(row: PhotoRow): Photo {
     title: row.title,
     description: row.description ?? "",
     imageUrl: normalizeImageUrl(row.image_url ?? ""),
+    slideshowImageUrl: normalizeImageUrl(row.slideshow_image_url ?? ""),
     locationName: String(row.location_name ?? "").trim(),
     countryName: String(row.country_name ?? "").trim(),
     takenOn: row.taken_on ?? null,
@@ -104,6 +112,7 @@ function mapPhotoDraft(draft: PhotoDraft) {
     title: draft.title.trim(),
     description: draft.description.trim(),
     image_url: normalizeImageUrl(draft.imageUrl),
+    slideshow_image_url: normalizeImageUrl(draft.slideshowImageUrl),
     location_name: draft.locationName.trim(),
     country_name: draft.countryName.trim(),
     taken_on: draft.takenOn,
@@ -112,14 +121,54 @@ function mapPhotoDraft(draft: PhotoDraft) {
   };
 }
 
+function mapLegacyPhotoDraft(draft: PhotoDraft) {
+  const { slideshow_image_url: _slideshowImageUrl, ...legacyDraft } = mapPhotoDraft(draft);
+  return legacyDraft;
+}
+
+function isMissingSlideshowColumn(error: { message?: string } | null) {
+  return error?.message?.includes("slideshow_image_url") ?? false;
+}
+
+async function selectPhoto(
+  client: ReturnType<typeof createPhotosClient>,
+  columns: string,
+  orderByCreatedAt = false,
+  photoId?: string,
+  maybeSingle = false,
+) {
+  let query = client.from(photosTable).select(columns);
+
+  if (photoId) {
+    query = query.eq("id", photoId);
+  }
+
+  if (orderByCreatedAt) {
+    query = query.order("created_at", { ascending: false });
+  }
+
+  const result = await (maybeSingle ? query.maybeSingle() : query);
+
+  if (!result.error || !isMissingSlideshowColumn(result.error)) {
+    return result;
+  }
+
+  let legacyQuery = client.from(photosTable).select(legacyPhotoColumns);
+
+  if (photoId) {
+    legacyQuery = legacyQuery.eq("id", photoId);
+  }
+
+  if (orderByCreatedAt) {
+    legacyQuery = legacyQuery.order("created_at", { ascending: false });
+  }
+
+  return maybeSingle ? legacyQuery.maybeSingle() : legacyQuery;
+}
+
 export async function getPhotos(): Promise<Photo[]> {
   const client = createPhotosClient();
-  const { data, error } = await client
-    .from(photosTable)
-    .select(
-      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
-    )
-    .order("created_at", { ascending: false });
+  const { data, error } = await selectPhoto(client, photoColumns, true);
 
   if (error) {
     throw new Error(error.message);
@@ -130,13 +179,19 @@ export async function getPhotos(): Promise<Photo[]> {
 
 export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
   const client = createPhotosClient();
-  const { data, error } = await client
+  let { data, error } = await client
     .from(photosTable)
     .insert(mapPhotoDraft(draft))
-    .select(
-      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
-    )
+    .select(photoColumns)
     .single();
+
+  if (isMissingSlideshowColumn(error)) {
+    ({ data, error } = await client
+      .from(photosTable)
+      .insert(mapLegacyPhotoDraft(draft))
+      .select(legacyPhotoColumns)
+      .single());
+  }
 
   if (error) {
     throw new Error(error.message);
@@ -147,13 +202,7 @@ export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
 
 export async function getPhotoById(photoId: string) {
   const client = createPhotosClient();
-  const { data, error } = await client
-    .from(photosTable)
-    .select(
-      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
-    )
-    .eq("id", photoId)
-    .maybeSingle();
+  const { data, error } = await selectPhoto(client, photoColumns, false, photoId, true);
 
   if (error) {
     throw new Error(error.message);
@@ -164,14 +213,21 @@ export async function getPhotoById(photoId: string) {
 
 export async function updatePhoto(photoId: string, draft: PhotoDraft): Promise<Photo> {
   const client = createPhotosClient();
-  const { data, error } = await client
+  let { data, error } = await client
     .from(photosTable)
     .update(mapPhotoDraft(draft))
     .eq("id", photoId)
-    .select(
-      "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at",
-    )
+    .select(photoColumns)
     .maybeSingle();
+
+  if (isMissingSlideshowColumn(error)) {
+    ({ data, error } = await client
+      .from(photosTable)
+      .update(mapLegacyPhotoDraft(draft))
+      .eq("id", photoId)
+      .select(legacyPhotoColumns)
+      .maybeSingle());
+  }
 
   if (error) {
     throw new Error(error.message);
@@ -225,6 +281,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
   const title = String(draft.title ?? "").trim();
   const description = String(draft.description ?? "").trim();
   const imageUrl = String(draft.imageUrl ?? "").trim();
+  const slideshowImageUrl = String(draft.slideshowImageUrl ?? "").trim();
   const locationName = String(draft.locationName ?? "").trim();
   const countryName = String(draft.countryName ?? "").trim();
   const takenOn = parseTakenOn(draft.takenOn);
@@ -232,7 +289,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
   const lng = Number(draft.lng);
 
   if (!title || !imageUrl || !locationName) {
-    throw new Error("Title, image, and location are required.");
+    throw new Error("Title, framed image, and location are required.");
   }
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -247,6 +304,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
     title,
     description,
     imageUrl,
+    slideshowImageUrl,
     locationName,
     countryName,
     takenOn,

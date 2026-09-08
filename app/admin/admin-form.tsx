@@ -32,6 +32,11 @@ export default function AdminForm({ photo }: AdminFormProps) {
     <form action={formAction} className="mt-8 space-y-4">
       <input name="photoId" type="hidden" value={photo?.id ?? ""} />
       <input name="existingImageUrl" type="hidden" value={photo?.imageUrl ?? ""} />
+      <input
+        name="existingSlideshowImageUrl"
+        type="hidden"
+        value={photo?.slideshowImageUrl ?? ""}
+      />
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
@@ -72,7 +77,8 @@ export default function AdminForm({ photo }: AdminFormProps) {
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Image URL <span className="normal-case tracking-normal text-stone-600">(optional if uploading)</span>
+          Framed image URL{" "}
+          <span className="normal-case tracking-normal text-stone-600">(optional if uploading)</span>
         </span>
         <input
           className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
@@ -84,16 +90,46 @@ export default function AdminForm({ photo }: AdminFormProps) {
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Upload file <span className="normal-case tracking-normal text-stone-600">(optional)</span>
+          Upload framed file{" "}
+          <span className="normal-case tracking-normal text-stone-600">(optional)</span>
         </span>
         <input
           accept="image/*"
           className="block w-full rounded-2xl border border-dashed border-stone-700 bg-stone-900/60 px-4 py-4 text-sm text-stone-300 file:mr-4 file:rounded-full file:border-0 file:bg-amber-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-stone-950 hover:file:bg-amber-100"
-          name="imageFile"
+          name="framedImageFile"
           type="file"
         />
         <span className="mt-2 block text-xs leading-6 text-stone-500">
           Uploaded files are stored in Supabase Storage when it is configured.
+        </span>
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
+          Slideshow image URL{" "}
+          <span className="normal-case tracking-normal text-stone-600">(unframed, optional)</span>
+        </span>
+        <input
+          className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
+          name="slideshowImageUrl"
+          defaultValue={photo?.slideshowImageUrl ?? ""}
+          placeholder="https://..."
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
+          Upload slideshow file{" "}
+          <span className="normal-case tracking-normal text-stone-600">(unframed, optional)</span>
+        </span>
+        <input
+          accept="image/*"
+          className="block w-full rounded-2xl border border-dashed border-stone-700 bg-stone-900/60 px-4 py-4 text-sm text-stone-300 file:mr-4 file:rounded-full file:border-0 file:bg-amber-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-stone-950 hover:file:bg-amber-100"
+          name="slideshowImageFile"
+          type="file"
+        />
+        <span className="mt-2 block text-xs leading-6 text-stone-500">
+          If left empty, the framed upload is reused for the slideshow.
         </span>
       </label>
 

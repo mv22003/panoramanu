@@ -49,11 +49,15 @@ function requireEnv(name) {
 }
 
 function mapPhotoRow(photo) {
+  const imageUrl = String(photo.imageUrl ?? "").trim();
+  const slideshowImageUrl = String(photo.slideshowImageUrl ?? imageUrl).trim() || imageUrl;
+
   return {
     id: String(photo.id),
     title: String(photo.title ?? "").trim(),
     description: String(photo.description ?? "").trim(),
-    image_url: String(photo.imageUrl ?? "").trim(),
+    image_url: imageUrl,
+    slideshow_image_url: slideshowImageUrl,
     location_name: String(photo.locationName ?? "").trim(),
     country_name: String(photo.countryName ?? "").trim(),
     taken_on: photo.takenOn ? String(photo.takenOn) : null,

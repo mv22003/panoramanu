@@ -91,7 +91,11 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
     () => photos.find((photo) => photo.id === selectedPhotoId),
     [photos, selectedPhotoId],
   );
-  const heroPhoto = photos[heroPhotoIndex] ?? photos[0];
+  const slideshowPhotos = useMemo(
+    () => photos.filter((photo) => photo.slideshowImageUrl),
+    [photos],
+  );
+  const heroPhoto = slideshowPhotos[heroPhotoIndex] ?? slideshowPhotos[0];
   const zoomedPhoto = useMemo(
     () => photos.find((photo) => photo.id === zoomedPhotoId),
     [photos, zoomedPhotoId],
@@ -107,16 +111,16 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   );
 
   useEffect(() => {
-    if (photos.length < 2) {
+    if (slideshowPhotos.length < 2) {
       return;
     }
 
     const interval = window.setInterval(() => {
-      setHeroPhotoIndex((currentIndex) => (currentIndex + 1) % photos.length);
+      setHeroPhotoIndex((currentIndex) => (currentIndex + 1) % slideshowPhotos.length);
     }, 4200);
 
     return () => window.clearInterval(interval);
-  }, [photos]);
+  }, [slideshowPhotos]);
 
   useEffect(() => {
     if (!zoomedPhoto) {
@@ -162,7 +166,9 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   }
 
   function renderPhotoSurface(photo: Photo, mode: "hero" | "gallery") {
-    if (!photo.imageUrl) {
+    const heroSource = photo.slideshowImageUrl;
+
+    if (!(mode === "hero" ? heroSource : photo.imageUrl)) {
       return (
         <div
           className={`flex items-center justify-center bg-[radial-gradient(circle_at_top,#2a241d_0%,#16120e_60%,#0f0d0a_100%)] text-stone-500 ${
@@ -204,7 +210,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       <img
         alt={photo.title}
         className="h-full w-full object-cover"
-        src={photo.imageUrl}
+        src={heroSource}
       />
     );
   }
@@ -349,7 +355,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                 </button>
               ) : (
                 <div className="flex aspect-[16/10] items-center justify-center text-sm text-stone-500">
-                  Add your first frame to start the archive.
+                  Add an unframed image to start the slideshow.
                 </div>
               )}
             </div>

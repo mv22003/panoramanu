@@ -23,20 +23,27 @@ export async function addPhoto(
     await requireAdmin();
 
     const photoId = String(formData.get("photoId") ?? "").trim();
-    const uploadedFile = formData.get("imageFile");
-    const uploadedImageUrl =
-      uploadedFile instanceof File && uploadedFile.size > 0
-        ? await saveUploadedPhoto(uploadedFile)
+    const framedFile = formData.get("framedImageFile");
+    const slideshowFile = formData.get("slideshowImageFile");
+    const uploadedFramedImageUrl =
+      framedFile instanceof File && framedFile.size > 0 ? await saveUploadedPhoto(framedFile) : "";
+    const uploadedSlideshowImageUrl =
+      slideshowFile instanceof File && slideshowFile.size > 0
+        ? await saveUploadedPhoto(slideshowFile)
         : "";
     const fallbackImageUrl = String(formData.get("existingImageUrl") ?? "").trim();
+    const fallbackSlideshowImageUrl = String(formData.get("existingSlideshowImageUrl") ?? "").trim();
     const takenOnMonth = String(formData.get("takenOnMonth") ?? "").trim();
     const takenOn = takenOnMonth ? `${takenOnMonth}-01` : "";
 
     const draft = parsePhotoDraft({
       ...Object.fromEntries(formData.entries()),
       takenOn,
-      imageUrl:
-        uploadedImageUrl || String(formData.get("imageUrl") ?? "").trim() || fallbackImageUrl,
+      imageUrl: uploadedFramedImageUrl || String(formData.get("imageUrl") ?? "").trim() || fallbackImageUrl,
+      slideshowImageUrl:
+        uploadedSlideshowImageUrl ||
+        String(formData.get("slideshowImageUrl") ?? "").trim() ||
+        fallbackSlideshowImageUrl,
     });
 
     if (photoId) {

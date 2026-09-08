@@ -5,6 +5,7 @@ create table if not exists public.photos (
   title text not null,
   description text not null default '',
   image_url text not null,
+  slideshow_image_url text not null default '',
   location_name text not null,
   country_name text not null default '',
   taken_on date,
