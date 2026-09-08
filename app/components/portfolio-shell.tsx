@@ -119,6 +119,21 @@ function GitHubIcon() {
   );
 }
 
+function AboutIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-3.5 w-3.5 shrink-0"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="8.5" fill="currentColor" r="1.4" />
+      <path d="M12 11.5v5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
 function MapPinIcon() {
   return (
     <svg
@@ -375,12 +390,9 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
         </div>
       ) : null}
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
-        <section className="rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
+        <section className="relative rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,36rem)] lg:items-center">
             <div className="max-w-3xl lg:self-center">
-              <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
-                35mm film journal
-              </p>
               <h1 className="mt-8 text-4xl font-semibold tracking-tight text-stone-50 sm:text-5xl">
                 panoramanu
               </h1>
@@ -451,9 +463,17 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             }`}
           />
           {isScrolled ? (
-            <p className="relative z-10 shrink-0 text-sm font-semibold tracking-tight text-stone-100">
+            <a
+              aria-label="Back to top"
+              className="relative z-10 shrink-0 text-xl font-semibold tracking-tight text-stone-100 transition hover:text-amber-200"
+              href="#top"
+              onClick={(event) => {
+                event.preventDefault();
+                window.scrollTo({ behavior: "smooth", top: 0 });
+              }}
+            >
               panoramanu
-            </p>
+            </a>
           ) : (
             <span />
           )}
@@ -708,13 +728,20 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
         ) : null}
         <footer className="flex justify-center border-t border-stone-800/60 pt-6 text-xs uppercase tracking-[0.18em] text-stone-500">
           <a
+            className="mr-6 inline-flex items-center gap-2 transition hover:text-stone-300"
+            href="/about"
+          >
+            <AboutIcon />
+            About
+          </a>
+          <a
             className="inline-flex items-center gap-2 transition hover:text-stone-300"
             href="https://github.com/mv22003/panoramanu"
             rel="noreferrer"
             target="_blank"
           >
             <GitHubIcon />
-            GitHub / panoramanu
+            GitHub
           </a>
         </footer>
       </main>
