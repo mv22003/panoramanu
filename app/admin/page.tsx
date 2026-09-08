@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import AdminForm from "@/app/admin/admin-form";
 import { removePhoto } from "@/app/admin/actions";
 import { hasAdminSession, isAdminAuthConfigured } from "@/lib/auth";
+import { getDailyVisits } from "@/lib/analytics";
 import { formatTakenOn } from "@/lib/photo-date";
 import { getPhotoById, getPhotos } from "@/lib/photos";
 
@@ -23,8 +24,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   }
 
   const { edit } = await searchParams;
+  const dailyVisits = await getDailyVisits();
   const photos = await getPhotos();
   const editingPhoto = edit ? await getPhotoById(edit) : null;
+  const today = new Date().toISOString().slice(0, 10);
+  const todayVisits = dailyVisits.find((day) => day.date === today)?.visits ?? 0;
+  const totalVisits = dailyVisits.reduce((total, day) => total + day.visits, 0);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
@@ -55,6 +60,40 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               Sign out
             </button>
           </form>
+        </div>
+      </section>
+
+      <section className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
+        <div className="flex items-baseline justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Analytics</p>
+            <h2 className="mt-3 text-2xl font-semibold text-stone-50">Site visits</h2>
+          </div>
+          <p className="text-xs text-stone-500">Last 30 days</p>
+        </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-[1.25rem] border border-stone-800 bg-stone-950/70 p-5">
+            <p className="text-xs uppercase tracking-[0.18em] text-stone-500">Today</p>
+            <p className="mt-3 text-3xl font-semibold text-stone-50">{todayVisits}</p>
+          </div>
+          <div className="rounded-[1.25rem] border border-stone-800 bg-stone-950/70 p-5">
+            <p className="text-xs uppercase tracking-[0.18em] text-stone-500">Total</p>
+            <p className="mt-3 text-3xl font-semibold text-stone-50">{totalVisits}</p>
+          </div>
+        </div>
+        <div className="mt-6 divide-y divide-stone-800/80 border-t border-stone-800/80">
+          {dailyVisits.length ? (
+            dailyVisits.map((day) => (
+              <div className="flex items-center justify-between gap-4 py-3 text-sm" key={day.date}>
+                <span className="text-stone-400">{day.date}</span>
+                <span className="font-medium text-stone-100">{day.visits}</span>
+              </div>
+            ))
+          ) : (
+            <p className="py-4 text-sm text-stone-500">
+              Run <code>supabase/analytics.sql</code> in Supabase to start collecting visits.
+            </p>
+          )}
         </div>
       </section>
 

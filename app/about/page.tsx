@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import VisitTracker from "@/app/components/visit-tracker";
+
 export const metadata = {
   title: "About | panoramanu",
   description: "The photographer, camera, and film behind panoramanu.",
@@ -47,9 +49,11 @@ function InstagramIcon() {
   );
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] px-5 py-8 text-stone-100 sm:px-8 lg:px-12 lg:py-12">
+    <>
+      <VisitTracker />
+      <main className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] px-5 py-8 text-stone-100 sm:px-8 lg:px-12 lg:py-12">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10">
         <header className="flex items-center justify-between gap-4 border-b border-stone-800/80 pb-5">
           <Link
@@ -163,6 +167,7 @@ export default function AboutPage() {
           </a>
         </footer>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
