@@ -29,7 +29,7 @@ export default function AdminForm({ photo }: AdminFormProps) {
   const isEditing = Boolean(photo);
 
   return (
-    <form action={formAction} className="mt-8 space-y-4">
+    <form action={formAction} className="mt-8 grid gap-4 sm:grid-cols-2">
       <input name="photoId" type="hidden" value={photo?.id ?? ""} />
       <input name="existingImageUrl" type="hidden" value={photo?.imageUrl ?? ""} />
       <input
@@ -77,18 +77,20 @@ export default function AdminForm({ photo }: AdminFormProps) {
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Framed image URL{" "}
-          <span className="normal-case tracking-normal text-stone-600">(optional if uploading)</span>
+          Instagram post URL{" "}
+          <span className="normal-case tracking-normal text-stone-600">(optional)</span>
         </span>
         <input
           className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
-          name="imageUrl"
-          defaultValue={photo?.imageUrl ?? ""}
-          placeholder="https://..."
+          name="instagramUrl"
+          defaultValue={photo?.instagramUrl ?? ""}
+          placeholder="https://www.instagram.com/p/..."
+          type="url"
         />
       </label>
 
-      <label className="block">
+      <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
+        <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
           Upload framed file{" "}
           <span className="normal-case tracking-normal text-stone-600">(optional)</span>
@@ -102,22 +104,9 @@ export default function AdminForm({ photo }: AdminFormProps) {
         <span className="mt-2 block text-xs leading-6 text-stone-500">
           Uploaded files are stored in Supabase Storage when it is configured.
         </span>
-      </label>
+        </label>
 
-      <label className="block">
-        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Slideshow image URL{" "}
-          <span className="normal-case tracking-normal text-stone-600">(unframed, optional)</span>
-        </span>
-        <input
-          className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
-          name="slideshowImageUrl"
-          defaultValue={photo?.slideshowImageUrl ?? ""}
-          placeholder="https://..."
-        />
-      </label>
-
-      <label className="block">
+        <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
           Upload slideshow file{" "}
           <span className="normal-case tracking-normal text-stone-600">(unframed, optional)</span>
@@ -131,7 +120,8 @@ export default function AdminForm({ photo }: AdminFormProps) {
         <span className="mt-2 block text-xs leading-6 text-stone-500">
           Only photos with an unframed image appear in the slideshow.
         </span>
-      </label>
+        </label>
+      </div>
 
       <label className="block">
         <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
@@ -143,20 +133,6 @@ export default function AdminForm({ photo }: AdminFormProps) {
           defaultValue={photo?.locationName ?? ""}
           placeholder="Shoreditch, London"
           required
-        />
-      </label>
-
-      <label className="block">
-        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
-          Instagram post URL{" "}
-          <span className="normal-case tracking-normal text-stone-600">(optional)</span>
-        </span>
-        <input
-          className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
-          name="instagramUrl"
-          defaultValue={photo?.instagramUrl ?? ""}
-          placeholder="https://www.instagram.com/p/..."
-          type="url"
         />
       </label>
 
@@ -202,11 +178,13 @@ export default function AdminForm({ photo }: AdminFormProps) {
         </label>
       </div>
 
-      {state.error ? <p className="text-sm text-red-300">{state.error}</p> : null}
-      {state.message ? <p className="text-sm text-emerald-300">{state.message}</p> : null}
+      {state.error ? <p className="text-sm text-red-300 sm:col-span-2">{state.error}</p> : null}
+      {state.message ? (
+        <p className="text-sm text-emerald-300 sm:col-span-2">{state.message}</p>
+      ) : null}
 
       <button
-        className="inline-flex w-full items-center justify-center rounded-full bg-amber-200 px-5 py-3 text-sm font-medium text-stone-950 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center rounded-full bg-amber-200 px-5 py-3 text-sm font-medium text-stone-950 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
         disabled={pending}
         type="submit"
       >

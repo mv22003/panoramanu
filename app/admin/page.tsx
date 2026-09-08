@@ -11,7 +11,7 @@ import { getPhotoById, getPhotos } from "@/lib/photos";
 export const dynamic = "force-dynamic";
 
 type AdminPageProps = {
-  searchParams: Promise<{ edit?: string; view?: string }>;
+  searchParams: Promise<{ edit?: string; view?: string; photoView?: string }>;
 };
 
 function formatDuration(seconds: number) {
@@ -53,8 +53,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     redirect("/login");
   }
 
-  const { edit, view } = await searchParams;
+  const { edit, view, photoView } = await searchParams;
   const showingAnalytics = view === "analytics";
+  const showingNewFrame = photoView === "new";
   const dailyVisits = await getDailyVisits();
   const photos = await getPhotos();
   const editingPhoto = edit ? await getPhotoById(edit) : null;
@@ -112,31 +113,61 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
       </section>
 
-      <nav
-        aria-label="Admin sections"
-        className="flex w-fit gap-1 rounded-full border border-stone-800/80 bg-[#141210]/94 p-1 shadow-[0_16px_50px_rgba(0,0,0,0.24)]"
-      >
-        <Link
-          className={`rounded-full px-5 py-2.5 text-sm transition ${
-            !showingAnalytics
-              ? "bg-stone-100 text-stone-950"
-              : "text-stone-400 hover:text-stone-100"
-          }`}
-          href="/admin"
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <nav
+          aria-label="Admin sections"
+          className="flex w-fit gap-1 rounded-full border border-stone-800/80 bg-[#141210]/94 p-1 shadow-[0_16px_50px_rgba(0,0,0,0.24)]"
         >
-          Photos
-        </Link>
-        <Link
-          className={`rounded-full px-5 py-2.5 text-sm transition ${
-            showingAnalytics
-              ? "bg-stone-100 text-stone-950"
-              : "text-stone-400 hover:text-stone-100"
-          }`}
-          href="/admin?view=analytics"
-        >
-          Analytics
-        </Link>
-      </nav>
+          <Link
+            className={`rounded-full px-5 py-2.5 text-sm transition ${
+              !showingAnalytics
+                ? "bg-stone-100 text-stone-950"
+                : "text-stone-400 hover:text-stone-100"
+            }`}
+            href="/admin"
+          >
+            Photos
+          </Link>
+          <Link
+            className={`rounded-full px-5 py-2.5 text-sm transition ${
+              showingAnalytics
+                ? "bg-stone-100 text-stone-950"
+                : "text-stone-400 hover:text-stone-100"
+            }`}
+            href="/admin?view=analytics"
+          >
+            Analytics
+          </Link>
+        </nav>
+
+        {!showingAnalytics ? (
+          <nav
+            aria-label="Photo sections"
+            className="flex w-fit gap-1 rounded-full border border-stone-800/80 bg-[#141210]/94 p-1 shadow-[0_16px_50px_rgba(0,0,0,0.24)]"
+          >
+            <Link
+              className={`rounded-full px-5 py-2.5 text-sm transition ${
+                !showingNewFrame
+                  ? "bg-stone-100 text-stone-950"
+                  : "text-stone-400 hover:text-stone-100"
+              }`}
+              href="/admin"
+            >
+              Existing photos
+            </Link>
+            <Link
+              className={`rounded-full px-5 py-2.5 text-sm transition ${
+                showingNewFrame
+                  ? "bg-stone-100 text-stone-950"
+                  : "text-stone-400 hover:text-stone-100"
+              }`}
+              href="/admin?photoView=new"
+            >
+              New frame
+            </Link>
+          </nav>
+        ) : null}
+      </div>
 
       {showingAnalytics ? (
         <>
@@ -205,8 +236,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </>
       ) : (
         <>
-      <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
+      {showingNewFrame ? (
+        <section className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
@@ -226,9 +257,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             ) : null}
           </div>
           <AdminForm photo={editingPhoto} />
-        </div>
+        </section>
+      ) : (
+        <section className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
 
-        <div className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
           <div className="flex items-baseline justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Archive</p>
@@ -239,56 +271,61 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <p className="text-xs text-stone-500">{photos.length} photos</p>
           </div>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {photos.map((photo) => (
               <div
                 key={photo.id}
-                className="rounded-[1.5rem] border border-stone-800 bg-stone-950/70 p-5"
+                className="flex gap-4 rounded-[1.25rem] border border-stone-800 bg-stone-950/70 p-3 transition hover:bg-stone-900/70 sm:items-center sm:p-4"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-stone-50">{photo.title}</h3>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-500">
-                      {photo.locationName}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-stone-500">
-                      {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
-                    </p>
-                    {photo.takenOn ? (
-                      <p className="mt-2 text-xs uppercase tracking-[0.18em] text-stone-600">
-                        {formatTakenOn(photo.takenOn)}
-                      </p>
-                    ) : null}
-                  </div>
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-stone-800 bg-stone-900 sm:h-20 sm:w-20">
+                  {photo.imageUrl ? (
+                    <img
+                      alt=""
+                      aria-hidden="true"
+                      className="h-full w-full object-cover"
+                      src={photo.imageUrl}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center px-2 text-center text-[10px] uppercase tracking-[0.14em] text-stone-600">
+                      No image
+                    </div>
+                  )}
                 </div>
-                {photo.description ? (
-                  <p className="mt-3 text-sm leading-6 text-stone-300">{photo.description}</p>
-                ) : (
-                  <p className="mt-3 text-sm italic text-stone-500">No description</p>
-                )}
-                <div className="mt-5 flex gap-3">
-                  <Link
-                    className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:border-stone-600 hover:text-stone-50"
-                    href={`/admin?edit=${photo.id}`}
-                  >
-                    Edit
-                  </Link>
-                  <form action={removePhoto.bind(null, photo.id)}>
-                    <button
-                      className="rounded-full border border-red-400/40 px-4 py-2 text-sm text-red-200 transition hover:border-red-300/60 hover:text-red-100"
-                      type="submit"
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                    <h3 className="truncate text-base font-semibold text-stone-50">{photo.title}</h3>
+                    <p className="shrink-0 text-xs text-stone-500">
+                      {photo.takenOn ? formatTakenOn(photo.takenOn) : "No date"}
+                    </p>
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-[0.14em] text-stone-500">
+                    <span>{photo.locationName || "No location"}</span>
+                    <span>
+                      {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
+                    </span>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <Link
+                      className="inline-flex h-9 w-16 appearance-none items-center justify-center rounded-full border border-stone-700 p-0 font-sans text-stone-300 transition hover:border-stone-600 hover:text-stone-50"
+                      href={`/admin?photoView=new&edit=${photo.id}`}
                     >
-                      Delete
-                    </button>
-                  </form>
+                      <span className="text-[12px] font-normal leading-4">Edit</span>
+                    </Link>
+                    <form action={removePhoto.bind(null, photo.id)}>
+                      <button
+                        className="inline-flex h-9 w-16 appearance-none items-center justify-center rounded-full border border-red-400/40 p-0 font-sans text-red-200 transition hover:border-red-300/60 hover:text-red-100"
+                        type="submit"
+                      >
+                        <span className="text-[12px] font-normal leading-4">Delete</span>
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
         </>
       )}
     </main>
