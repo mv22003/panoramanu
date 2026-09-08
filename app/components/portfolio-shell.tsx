@@ -334,7 +334,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       {zoomedPhoto ? (
         <div
           aria-modal="true"
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(6,5,4,0.94)] px-4 py-6 sm:px-6"
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-[rgba(6,5,4,0.94)] px-4 py-6 sm:px-6"
           onClick={() => setZoomedPhotoId("")}
           role="dialog"
         >
@@ -408,15 +408,6 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   >
                     <InstagramIcon />
                     Instagram / @panoramanu_
-                  </a>
-                  <a
-                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
-                    href="https://github.com/mv22003/panoramanu"
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    <GitHubIcon />
-                    GitHub / panoramanu
                   </a>
                 </div>
               </div>
@@ -678,13 +669,18 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                           src={selectedPhoto.imageUrl}
                         />
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05)_0%,rgba(18,16,13,0.1)_26%,rgba(10,9,7,0.66)_100%)]" />
-                        <div className="relative flex w-full max-h-[13rem] min-h-[8.5rem] items-center justify-center">
+                        <button
+                          aria-label={`Open ${selectedPhoto.title} in the gallery`}
+                          className="pointer-events-auto relative flex w-full max-h-[13rem] min-h-[8.5rem] cursor-zoom-in items-center justify-center border-0 bg-transparent p-0"
+                          onClick={() => setZoomedPhotoId(selectedPhoto.id)}
+                          type="button"
+                        >
                           <img
                             alt={selectedPhoto.title}
                             className="block h-auto max-h-[13rem] w-auto max-w-[13rem] self-center"
                             src={selectedPhoto.imageUrl}
                           />
-                        </div>
+                        </button>
                       </>
                     ) : (
                       <div className="flex min-h-[8.5rem] min-w-[9rem] max-w-[13rem] items-center justify-center bg-[radial-gradient(circle_at_top,#2a241d_0%,#16120e_60%,#0f0d0a_100%)] px-4 text-center text-xs uppercase tracking-[0.22em] text-stone-500">
@@ -716,6 +712,17 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
         </section>
         ) : null}
+        <footer className="flex justify-center border-t border-stone-800/60 pt-6 text-xs uppercase tracking-[0.18em] text-stone-500">
+          <a
+            className="inline-flex items-center gap-2 transition hover:text-stone-300"
+            href="https://github.com/mv22003/panoramanu"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <GitHubIcon />
+            GitHub / panoramanu
+          </a>
+        </footer>
       </main>
     </div>
   );
