@@ -7,6 +7,7 @@ export type Photo = {
   description: string;
   imageUrl: string;
   slideshowImageUrl: string;
+  instagramUrl: string;
   locationName: string;
   countryName: string;
   takenOn: string | null;
@@ -20,6 +21,7 @@ export type PhotoDraft = {
   description: string;
   imageUrl: string;
   slideshowImageUrl: string;
+  instagramUrl: string;
   locationName: string;
   countryName: string;
   takenOn: string | null;
@@ -33,6 +35,7 @@ type PhotoRow = {
   description: string | null;
   image_url: string | null;
   slideshow_image_url?: string | null;
+  instagram_url?: string | null;
   location_name: string | null;
   country_name: string | null;
   taken_on: string | null;
@@ -43,7 +46,7 @@ type PhotoRow = {
 
 const photosTable = process.env.SUPABASE_PHOTOS_TABLE?.trim() || "photos";
 const photoColumns =
-  "id, title, description, image_url, slideshow_image_url, location_name, country_name, taken_on, lat, lng, created_at";
+  "id, title, description, image_url, slideshow_image_url, instagram_url, location_name, country_name, taken_on, lat, lng, created_at";
 const legacyPhotoColumns =
   "id, title, description, image_url, location_name, country_name, taken_on, lat, lng, created_at";
 
@@ -98,6 +101,7 @@ function mapPhotoRow(row: PhotoRow): Photo {
     description: row.description ?? "",
     imageUrl: normalizeImageUrl(row.image_url ?? ""),
     slideshowImageUrl: normalizeImageUrl(row.slideshow_image_url ?? ""),
+    instagramUrl: String(row.instagram_url ?? "").trim(),
     locationName: String(row.location_name ?? "").trim(),
     countryName: String(row.country_name ?? "").trim(),
     takenOn: row.taken_on ?? null,
@@ -113,6 +117,7 @@ function mapPhotoDraft(draft: PhotoDraft) {
     description: draft.description.trim(),
     image_url: normalizeImageUrl(draft.imageUrl),
     slideshow_image_url: normalizeImageUrl(draft.slideshowImageUrl),
+    instagram_url: draft.instagramUrl.trim(),
     location_name: draft.locationName.trim(),
     country_name: draft.countryName.trim(),
     taken_on: draft.takenOn,
@@ -122,12 +127,20 @@ function mapPhotoDraft(draft: PhotoDraft) {
 }
 
 function mapLegacyPhotoDraft(draft: PhotoDraft) {
-  const { slideshow_image_url: _slideshowImageUrl, ...legacyDraft } = mapPhotoDraft(draft);
+  const {
+    slideshow_image_url: _slideshowImageUrl,
+    instagram_url: _instagramUrl,
+    ...legacyDraft
+  } = mapPhotoDraft(draft);
   return legacyDraft;
 }
 
 function isMissingSlideshowColumn(error: { message?: string } | null) {
-  return error?.message?.includes("slideshow_image_url") ?? false;
+  return (
+    error?.message?.includes("slideshow_image_url") ||
+    error?.message?.includes("instagram_url") ||
+    false
+  );
 }
 
 async function selectPhoto(
@@ -282,6 +295,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
   const description = String(draft.description ?? "").trim();
   const imageUrl = String(draft.imageUrl ?? "").trim();
   const slideshowImageUrl = String(draft.slideshowImageUrl ?? "").trim();
+  const instagramUrl = String(draft.instagramUrl ?? "").trim();
   const locationName = String(draft.locationName ?? "").trim();
   const countryName = String(draft.countryName ?? "").trim();
   const takenOn = parseTakenOn(draft.takenOn);
@@ -305,6 +319,7 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
     description,
     imageUrl,
     slideshowImageUrl,
+    instagramUrl,
     locationName,
     countryName,
     takenOn,

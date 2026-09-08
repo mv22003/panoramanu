@@ -448,6 +448,17 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
                     </button>
                     <div className="absolute bottom-5 right-5 flex gap-2">
+                      {photo.instagramUrl ? (
+                        <a
+                          aria-label={`Open ${photo.title} on Instagram`}
+                          className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-700 text-stone-500 transition hover:border-stone-500 hover:text-stone-300"
+                          href={photo.instagramUrl}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          <InstagramIcon />
+                        </a>
+                      ) : null}
                       <button
                         aria-label={`Show ${photo.title} on the map`}
                         className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-700 text-stone-500 transition hover:border-stone-500 hover:text-stone-300"

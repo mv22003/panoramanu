@@ -129,7 +129,7 @@ export default function AdminForm({ photo }: AdminFormProps) {
           type="file"
         />
         <span className="mt-2 block text-xs leading-6 text-stone-500">
-          If left empty, the framed upload is reused for the slideshow.
+          Only photos with an unframed image appear in the slideshow.
         </span>
       </label>
 
@@ -143,6 +143,20 @@ export default function AdminForm({ photo }: AdminFormProps) {
           defaultValue={photo?.locationName ?? ""}
           placeholder="Shoreditch, London"
           required
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
+          Instagram post URL{" "}
+          <span className="normal-case tracking-normal text-stone-600">(optional)</span>
+        </span>
+        <input
+          className="w-full rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60"
+          name="instagramUrl"
+          defaultValue={photo?.instagramUrl ?? ""}
+          placeholder="https://www.instagram.com/p/..."
+          type="url"
         />
       </label>
 

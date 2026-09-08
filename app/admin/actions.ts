@@ -40,6 +40,7 @@ export async function addPhoto(
       ...Object.fromEntries(formData.entries()),
       takenOn,
       imageUrl: uploadedFramedImageUrl || String(formData.get("imageUrl") ?? "").trim() || fallbackImageUrl,
+      instagramUrl: String(formData.get("instagramUrl") ?? "").trim(),
       slideshowImageUrl:
         uploadedSlideshowImageUrl ||
         String(formData.get("slideshowImageUrl") ?? "").trim() ||
