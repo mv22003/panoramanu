@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 
 import PhotoMapShell from "@/app/components/photo-map-shell";
 import { formatTakenOn } from "@/lib/photo-date";
@@ -17,6 +17,90 @@ const galleryViews: Array<{ id: GalleryView; label: string }> = [
   { id: "calendar", label: "Calendar" },
   { id: "map", label: "Map" },
 ];
+
+function ViewOptions({
+  activeView,
+  onChange,
+  compact = false,
+  navRef,
+}: {
+  activeView: GalleryView;
+  onChange: (view: GalleryView) => void;
+  compact?: boolean;
+  navRef?: Ref<HTMLElement>;
+}) {
+  return (
+    <nav
+      aria-label="Gallery views"
+      className={`flex w-fit max-w-full flex-wrap gap-2 rounded-full border border-stone-800/80 bg-[#12100d]/80 p-1.5 ${
+        compact ? "border-stone-700/70 bg-[#12100d]/90" : "self-start"
+      }`}
+      ref={navRef}
+    >
+      {galleryViews.map((view) => {
+        const isActive = activeView === view.id;
+
+        return (
+          <button
+            aria-pressed={isActive}
+            className={`rounded-full text-xs uppercase tracking-[0.16em] transition ${
+              compact ? "px-3 py-2" : "px-4 py-2.5 sm:px-5"
+            } ${
+              isActive
+                ? "bg-amber-200 text-stone-950"
+                : "text-stone-500 hover:bg-stone-900/80 hover:text-stone-200"
+            }`}
+            key={view.id}
+            onClick={() => onChange(view.id)}
+            type="button"
+          >
+            {view.label}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+function AdminAccessControl({
+  isOpen,
+  onToggle,
+}: {
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="relative z-20 shrink-0">
+      <button
+        aria-expanded={isOpen}
+        aria-label="Toggle access menu"
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-800/80 bg-[#12100d]/80 text-stone-400 transition hover:border-stone-700 hover:text-stone-200"
+        onClick={onToggle}
+        type="button"
+      >
+        <span className="flex flex-col gap-1.5">
+          <span className="block h-px w-4 bg-current" />
+          <span className="block h-px w-4 bg-current" />
+          <span className="block h-px w-4 bg-current" />
+        </span>
+      </button>
+      <div
+        className={`absolute right-0 top-14 z-10 w-44 rounded-[1.25rem] border border-stone-800/80 bg-[#12100d]/96 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)] transition ${
+          isOpen
+            ? "pointer-events-auto translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-2 opacity-0"
+        }`}
+      >
+        <a
+          className="block rounded-[0.9rem] px-3 py-2 text-sm text-stone-300 transition hover:bg-stone-900/80 hover:text-stone-50"
+          href="/login"
+        >
+          Admin access
+        </a>
+      </div>
+    </div>
+  );
+}
 
 function InstagramIcon() {
   return (
@@ -91,10 +175,12 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [selectedPhotoId, setSelectedPhotoId] = useState("");
   const [isAccessOpen, setIsAccessOpen] = useState(false);
   const [activeView, setActiveView] = useState<GalleryView>("collection");
+  const [isScrolled, setIsScrolled] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
   const [zoomedPhotoId, setZoomedPhotoId] = useState("");
   const galleryCardRefs = useRef(new Map<string, HTMLButtonElement>());
   const mapSectionRef = useRef<HTMLElement | null>(null);
+  const originalViewOptionsRef = useRef<HTMLElement | null>(null);
 
   const selectedPhoto = useMemo(
     () => photos.find((photo) => photo.id === selectedPhotoId),
@@ -128,6 +214,25 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       ).size,
     [photos],
   );
+
+  useEffect(() => {
+    function handleScroll() {
+      const viewOptions = originalViewOptionsRef.current;
+
+      if (!viewOptions) {
+        return;
+      }
+
+      const viewOptionsBottom =
+        viewOptions.getBoundingClientRect().top + window.scrollY + viewOptions.offsetHeight;
+      setIsScrolled(window.scrollY > viewOptionsBottom + 24);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (slideshowPhotos.length < 2) {
@@ -243,6 +348,21 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100">
+      <header
+        className={`fixed inset-x-0 top-0 z-[900] border-b border-stone-800/80 bg-[#12100d]/88 backdrop-blur-xl transition duration-300 ${
+          isScrolled
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-full opacity-0"
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-3 sm:px-8 lg:px-12">
+          <p className="shrink-0 text-sm font-semibold tracking-[0.12em] text-stone-100">
+            panoramanu
+          </p>
+          <ViewOptions activeView={activeView} compact onChange={changeView} />
+          <AdminAccessControl isOpen={isAccessOpen} onToggle={() => setIsAccessOpen((open) => !open)} />
+        </div>
+      </header>
       {zoomedPhoto ? (
         <div
           aria-modal="true"
@@ -288,43 +408,12 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       ) : null}
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
         <section className="rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
-              35mm film journal
-            </p>
-            <div className="relative z-20">
-              <button
-                aria-expanded={isAccessOpen}
-                aria-label="Toggle access menu"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-800/80 bg-[#12100d]/80 text-stone-400 transition hover:border-stone-700 hover:text-stone-200"
-                onClick={() => setIsAccessOpen((open) => !open)}
-                type="button"
-              >
-                <span className="flex flex-col gap-1.5">
-                  <span className="block h-px w-4 bg-current" />
-                  <span className="block h-px w-4 bg-current" />
-                  <span className="block h-px w-4 bg-current" />
-                </span>
-              </button>
-              <div
-                className={`absolute right-0 top-12 z-10 w-44 rounded-[1.25rem] border border-stone-800/80 bg-[#12100d]/96 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)] transition ${
-                  isAccessOpen
-                    ? "pointer-events-auto translate-y-0 opacity-100"
-                    : "pointer-events-none -translate-y-2 opacity-0"
-                }`}
-              >
-                <a
-                  className="block rounded-[0.9rem] px-3 py-2 text-sm text-stone-300 transition hover:bg-stone-900/80 hover:text-stone-50"
-                  href="/login"
-                >
-                  Admin access
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,36rem)] lg:items-center">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,36rem)] lg:items-center">
             <div className="max-w-3xl lg:self-center">
-              <h1 className="text-4xl font-semibold tracking-tight text-stone-50 sm:text-5xl">
+              <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
+                35mm film journal
+              </p>
+              <h1 className="mt-8 text-4xl font-semibold tracking-tight text-stone-50 sm:text-5xl">
                 panoramanu
               </h1>
               <p className="mt-4 text-sm leading-7 text-stone-300 sm:text-base">
@@ -389,30 +478,17 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
         </section>
 
-        <nav
-          aria-label="Gallery views"
-          className="flex w-fit max-w-full flex-wrap gap-2 self-start rounded-full border border-stone-800/80 bg-[#12100d]/80 p-1.5"
-        >
-          {galleryViews.map((view) => {
-            const isActive = activeView === view.id;
-
-            return (
-              <button
-                aria-pressed={isActive}
-                className={`rounded-full px-4 py-2.5 text-xs uppercase tracking-[0.16em] transition sm:px-5 ${
-                  isActive
-                    ? "bg-amber-200 text-stone-950"
-                    : "text-stone-500 hover:bg-stone-900/80 hover:text-stone-200"
-                }`}
-                key={view.id}
-                onClick={() => changeView(view.id)}
-                type="button"
-              >
-                {view.label}
-              </button>
-            );
-          })}
-        </nav>
+        <div className="flex w-fit max-w-full items-center gap-3">
+          <ViewOptions
+            activeView={activeView}
+            navRef={originalViewOptionsRef}
+            onChange={changeView}
+          />
+          <AdminAccessControl
+            isOpen={isAccessOpen}
+            onToggle={() => setIsAccessOpen((open) => !open)}
+          />
+        </div>
 
         {activeView === "collection" ? (
           <>
@@ -426,9 +502,6 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                 Photo collection
               </h2>
             </div>
-            <p className="text-xs uppercase tracking-[0.18em] text-stone-500">
-              Click a frame to center the map
-            </p>
           </div>
 
           <div className="mt-8 columns-1 gap-5 md:columns-2">
