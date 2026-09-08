@@ -4,14 +4,14 @@ import { redirect } from "next/navigation";
 import AdminForm from "@/app/admin/admin-form";
 import { removePhoto } from "@/app/admin/actions";
 import { hasAdminSession, isAdminAuthConfigured } from "@/lib/auth";
-import { getDailyVisits, getRecentVisitSessions } from "@/lib/analytics";
+import { getDailyVisits } from "@/lib/analytics";
 import { formatTakenOn } from "@/lib/photo-date";
 import { getPhotoById, getPhotos } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
 
 type AdminPageProps = {
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; view?: string }>;
 };
 
 function formatDuration(seconds: number) {
@@ -22,13 +22,6 @@ function formatDuration(seconds: number) {
   const minutes = Math.floor(seconds / 60);
   const remainder = seconds % 60;
   return `${minutes}m ${remainder}s`;
-}
-
-function formatTimestamp(value: string) {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
 }
 
 function renderBreakdown(
@@ -60,9 +53,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     redirect("/login");
   }
 
-  const { edit } = await searchParams;
+  const { edit, view } = await searchParams;
+  const showingAnalytics = view === "analytics";
   const dailyVisits = await getDailyVisits();
-  const visitSessions = await getRecentVisitSessions();
   const photos = await getPhotos();
   const editingPhoto = edit ? await getPhotoById(edit) : null;
   const today = new Date().toISOString().slice(0, 10);
@@ -119,6 +112,34 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
       </section>
 
+      <nav
+        aria-label="Admin sections"
+        className="flex w-fit gap-1 rounded-full border border-stone-800/80 bg-[#141210]/94 p-1 shadow-[0_16px_50px_rgba(0,0,0,0.24)]"
+      >
+        <Link
+          className={`rounded-full px-5 py-2.5 text-sm transition ${
+            !showingAnalytics
+              ? "bg-stone-100 text-stone-950"
+              : "text-stone-400 hover:text-stone-100"
+          }`}
+          href="/admin"
+        >
+          Photos
+        </Link>
+        <Link
+          className={`rounded-full px-5 py-2.5 text-sm transition ${
+            showingAnalytics
+              ? "bg-stone-100 text-stone-950"
+              : "text-stone-400 hover:text-stone-100"
+          }`}
+          href="/admin?view=analytics"
+        >
+          Analytics
+        </Link>
+      </nav>
+
+      {showingAnalytics ? (
+        <>
       <section className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
         <div className="flex items-baseline justify-between gap-4">
           <div>
@@ -181,52 +202,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
-        <div className="flex items-baseline justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Sessions</p>
-            <h2 className="mt-3 text-2xl font-semibold text-stone-50">Recent visits</h2>
-          </div>
-          <p className="text-xs text-stone-500">Latest {visitSessions.length} rows</p>
-        </div>
-
-        <div className="mt-6 space-y-3">
-          {visitSessions.length ? (
-            visitSessions.map((session) => (
-              <div
-                key={session.id}
-                className="rounded-[1.25rem] border border-stone-800 bg-stone-950/70 p-5"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-stone-100">{session.path}</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-500">
-                      {session.visitorId}
-                    </p>
-                  </div>
-                  <div className="text-right text-xs uppercase tracking-[0.14em] text-stone-500">
-                    <p>{session.countryCode ?? "Unknown country"}</p>
-                    <p className="mt-1">{session.deviceType ?? "Unknown device"}</p>
-                  </div>
-                </div>
-                <div className="mt-4 grid gap-2 text-sm text-stone-300 md:grid-cols-2">
-                  <p>Started: {formatTimestamp(session.startedAt)}</p>
-                  <p>Last activity: {formatTimestamp(session.lastSeenAt)}</p>
-                  <p>Browser: {session.browser ?? "Unknown"}</p>
-                  <p>OS: {session.operatingSystem ?? "Unknown"}</p>
-                  <p>Duration: {formatDuration(session.durationSeconds)}</p>
-                  <p>Session: {session.sessionId}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="py-4 text-sm text-stone-500">
-              No session rows yet.
-            </p>
-          )}
-        </div>
-      </section>
-
+        </>
+      ) : (
+        <>
       <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
           <div className="flex items-start justify-between gap-4">
@@ -311,6 +289,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
         </div>
       </section>
+        </>
+      )}
     </main>
   );
 }
