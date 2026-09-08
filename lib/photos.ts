@@ -187,7 +187,9 @@ export async function getPhotos(): Promise<Photo[]> {
     throw new Error(error.message);
   }
 
-  return (data ?? []).map((row) => mapPhotoRow(row as PhotoRow));
+  return (Array.isArray(data) ? data : []).map((row) =>
+    mapPhotoRow(row as PhotoRow),
+  );
 }
 
 export async function createPhoto(draft: PhotoDraft): Promise<Photo> {
