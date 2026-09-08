@@ -207,8 +207,21 @@ function MagnifierIcon() {
   );
 }
 
+function shufflePhotos(photos: Photo[]) {
+  const shuffled = [...photos];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
 export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [photos] = useState(initialPhotos);
+  const [collectionPhotos, setCollectionPhotos] = useState(initialPhotos);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedPhotoId, setSelectedPhotoId] = useState("");
   const [activeView, setActiveView] = useState<GalleryView>("collection");
   const [isScrolled, setIsScrolled] = useState(false);
@@ -218,6 +231,16 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const mapSectionRef = useRef<HTMLElement | null>(null);
   const stickyHeaderRef = useRef<HTMLDivElement | null>(null);
   const stickyHeaderTopRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setCollectionPhotos(shufflePhotos(initialPhotos));
+
+    const loadingTimer = window.setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => window.clearTimeout(loadingTimer);
+  }, [initialPhotos]);
 
   const selectedPhoto = useMemo(
     () => photos.find((photo) => photo.id === selectedPhotoId),
@@ -432,7 +455,23 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100">
+    <div
+      aria-busy={isLoading}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100"
+    >
+      <div
+        aria-label="Loading portfolio"
+        aria-live="polite"
+        className={`fixed inset-0 z-[1000] flex items-center justify-center bg-[#0b0a08] transition-opacity duration-500 ${
+          isLoading ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        role="status"
+      >
+        <p className="animate-pulse text-sm uppercase tracking-[0.32em] text-stone-400">
+          Loading the magic...
+        </p>
+      </div>
+
       {zoomedPhoto ? (
         <div
           aria-modal="true"
@@ -595,7 +634,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
 
           <div className="mt-8 columns-1 gap-5 md:columns-2">
-            {photos.map((photo) => {
+            {collectionPhotos.map((photo) => {
               const isSelected = photo.id === selectedPhoto?.id;
 
               return (
