@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import PhotoMapShell from "@/app/components/photo-map-shell";
+import { getCountryFlagPath } from "@/lib/country";
 import { formatTakenOn } from "@/lib/photo-date";
 import type { Photo } from "@/lib/photos";
 
@@ -11,6 +12,12 @@ type PortfolioShellProps = {
 };
 
 type GalleryView = "collection" | "calendar" | "map";
+
+type CalendarRow = {
+  key: string;
+  label: string;
+  photos: Photo[];
+};
 
 const galleryViews: Array<{ id: GalleryView; label: string }> = [
   { id: "collection", label: "Gallery" },
@@ -80,6 +87,36 @@ function AdminAccessLink({ compact = false }: { compact?: boolean }) {
     >
       <KeyIcon />
     </a>
+  );
+}
+
+function formatTimelineMonth(value: string) {
+  return new Intl.DateTimeFormat("en-GB", { month: "long" }).format(
+    new Date(`${value}-01T00:00:00Z`),
+  );
+}
+
+function LocationWithFlag({
+  locationName,
+  countryName,
+}: {
+  locationName: string;
+  countryName: string;
+}) {
+  const flagPath = getCountryFlagPath(countryName);
+
+  return (
+    <>
+      {locationName}
+      {flagPath ? (
+        <img
+          alt=""
+          aria-hidden="true"
+          className="ml-1 inline-block h-[1em] w-auto align-[-0.12em]"
+          src={flagPath}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -201,6 +238,52 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       }),
     [photos],
   );
+  const calendarRows = useMemo(() => {
+    const rows: CalendarRow[] = [];
+    const rowsByKey = new Map<string, CalendarRow>();
+
+    for (const photo of calendarPhotos) {
+      const key = photo.takenOn?.slice(0, 7) || "undated";
+      let row = rowsByKey.get(key);
+
+      if (!row) {
+        row = {
+          key,
+          label: photo.takenOn ? formatTimelineMonth(key) : "Undated",
+          photos: [],
+        };
+        rowsByKey.set(key, row);
+        rows.push(row);
+      }
+
+      row.photos.push(photo);
+    }
+
+    return rows;
+  }, [calendarPhotos]);
+  const calendarYears = useMemo(() => {
+    const years: Array<{ key: string; label: string; rows: CalendarRow[] }> = [];
+    const yearsByKey = new Map<string, (typeof years)[number]>();
+
+    for (const row of calendarRows) {
+      const key = row.key === "undated" ? "undated" : row.key.slice(0, 4);
+      let year = yearsByKey.get(key);
+
+      if (!year) {
+        year = {
+          key,
+          label: key === "undated" ? "Undated" : key,
+          rows: [],
+        };
+        yearsByKey.set(key, year);
+        years.push(year);
+      }
+
+      year.rows.push(row);
+    }
+
+    return years;
+  }, [calendarRows]);
   const zoomedPhoto = useMemo(
     () => photos.find((photo) => photo.id === zoomedPhotoId),
     [photos, zoomedPhotoId],
@@ -382,7 +465,10 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             >
               <p className="text-xl font-semibold text-stone-50">{zoomedPhoto.title}</p>
               <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
-                {zoomedPhoto.locationName}
+                <LocationWithFlag
+                  countryName={zoomedPhoto.countryName}
+                  locationName={zoomedPhoto.locationName}
+                />
               </p>
               {zoomedPhoto.takenOn ? (
                 <p className="mt-2 text-sm text-stone-500">
@@ -441,7 +527,10 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   {renderPhotoSurface(heroPhoto, "hero")}
                   <div className="absolute inset-x-0 bottom-0 border-t border-stone-800/80 bg-[#12100d] px-5 py-4">
                     <p className="text-right text-xs uppercase tracking-[0.22em] text-stone-300">
-                      {heroPhoto.locationName}
+                      <LocationWithFlag
+                        countryName={heroPhoto.countryName}
+                        locationName={heroPhoto.locationName}
+                      />
                     </p>
                   </div>
                 </button>
@@ -546,7 +635,10 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                           {photo.title}
                         </h3>
                         <p className="text-xs uppercase tracking-[0.18em] text-stone-500">
-                          {photo.locationName}
+                          <LocationWithFlag
+                            countryName={photo.countryName}
+                            locationName={photo.locationName}
+                          />
                         </p>
                       </div>
                     </button>
@@ -559,14 +651,11 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                         {photo.description}
                       </button>
                     ) : null}
-                    <button
-                      className="mt-3 block text-left text-xs text-stone-500"
-                      onClick={() => setZoomedPhotoId(photo.id)}
-                      type="button"
-                    >
-                      {photo.takenOn ? `${formatTakenOn(photo.takenOn)} | ` : ""}
-                      {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
-                    </button>
+                    {photo.takenOn ? (
+                      <p className="mt-3 text-left text-xs text-stone-500">
+                        {formatTakenOn(photo.takenOn)}
+                      </p>
+                    ) : null}
                     <div className="absolute bottom-5 right-5 flex gap-2">
                       {photo.instagramUrl ? (
                         <a
@@ -620,35 +709,56 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                 Newest first
               </p>
             </div>
-            <div className="mt-8 space-y-3">
-              {calendarPhotos.map((photo) => (
-                <button
-                  className="group flex w-full items-center gap-4 rounded-[1.25rem] border border-stone-800/80 bg-stone-950/45 p-3 text-left transition hover:border-stone-700 hover:bg-stone-900/70 sm:gap-5 sm:p-4"
-                  key={photo.id}
-                  onClick={() => setZoomedPhotoId(photo.id)}
-                  type="button"
-                >
-                  <div className="h-16 w-20 shrink-0 overflow-hidden rounded-lg bg-stone-900 sm:h-20 sm:w-28">
-                    {photo.imageUrl ? (
-                      <img
-                        alt=""
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        src={photo.imageUrl}
-                      />
-                    ) : null}
+            <div className="mt-8 space-y-8">
+              {calendarYears.map((year) => (
+                <div key={year.key}>
+                  <div className="flex items-baseline gap-4 border-b border-stone-800/80 pb-3">
+                    <h3 className="text-xl font-semibold text-stone-100">{year.label}</h3>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-base font-medium text-stone-100">
-                      {photo.title}
-                    </p>
-                    <p className="mt-1 truncate text-xs uppercase tracking-[0.16em] text-stone-500">
-                      {photo.locationName}
-                    </p>
+                  <div className="mt-3 space-y-3">
+                    {year.rows.map((row) => (
+                      <div
+                        className="grid gap-3 rounded-[1.25rem] border border-stone-800/80 bg-stone-950/45 p-3 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:p-4"
+                        key={row.key}
+                      >
+                        <p className="text-xs uppercase tracking-[0.16em] text-amber-200/70">
+                          {row.label}
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          {row.photos.map((photo) => (
+                            <button
+                              className="group flex min-w-0 flex-1 basis-[16rem] items-center gap-3 rounded-xl border border-stone-800/80 bg-stone-950/50 p-2 text-left transition hover:border-stone-700 hover:bg-stone-900/70 sm:gap-4 sm:p-3"
+                              key={photo.id}
+                              onClick={() => setZoomedPhotoId(photo.id)}
+                              type="button"
+                            >
+                              <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-stone-900 sm:h-16 sm:w-24">
+                                {photo.imageUrl ? (
+                                  <img
+                                    alt=""
+                                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                    src={photo.imageUrl}
+                                  />
+                                ) : null}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-stone-100">
+                                  {photo.title}
+                                </p>
+                                <p className="mt-1 truncate text-xs uppercase tracking-[0.14em] text-stone-500">
+                                  <LocationWithFlag
+                                    countryName={photo.countryName}
+                                    locationName={photo.locationName}
+                                  />
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <p className="shrink-0 text-right text-xs uppercase tracking-[0.14em] text-amber-200/70">
-                    {photo.takenOn ? formatTakenOn(photo.takenOn) : "Undated"}
-                  </p>
-                </button>
+                </div>
               ))}
             </div>
           </section>
@@ -712,7 +822,10 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       {selectedPhoto.title}
                     </p>
                     <p className="text-[11px] uppercase tracking-[0.2em] text-stone-400">
-                      {selectedPhoto.locationName}
+                      <LocationWithFlag
+                        countryName={selectedPhoto.countryName}
+                        locationName={selectedPhoto.locationName}
+                      />
                     </p>
                     {selectedPhoto.takenOn ? (
                       <p className="text-[11px] text-stone-500">

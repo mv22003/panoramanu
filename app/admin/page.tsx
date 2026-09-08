@@ -5,6 +5,7 @@ import AdminForm from "@/app/admin/admin-form";
 import { removePhoto } from "@/app/admin/actions";
 import { hasAdminSession, isAdminAuthConfigured } from "@/lib/auth";
 import { getDailyVisits } from "@/lib/analytics";
+import { getCountryFlagPath } from "@/lib/country";
 import { formatTakenOn } from "@/lib/photo-date";
 import { getPhotoById, getPhotos } from "@/lib/photos";
 
@@ -299,9 +300,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     </p>
                   </div>
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-[0.14em] text-stone-500">
-                    <span>{photo.locationName || "No location"}</span>
                     <span>
-                      {photo.lat.toFixed(4)}, {photo.lng.toFixed(4)}
+                      {photo.locationName || "No location"}
+                      {getCountryFlagPath(photo.countryName) ? (
+                        <img
+                          alt=""
+                          aria-hidden="true"
+                          className="ml-1 inline-block h-[1em] w-auto align-[-0.12em]"
+                          src={getCountryFlagPath(photo.countryName) ?? undefined}
+                        />
+                      ) : null}
                     </span>
                   </div>
                   <div className="mt-3 flex gap-2">

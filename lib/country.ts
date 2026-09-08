@@ -1,0 +1,33 @@
+const countryFlags: Record<string, string> = {
+  eng: "/flags/eng.svg",
+  england: "/flags/eng.svg",
+  gb: "/flags/eng.svg",
+  uk: "/flags/eng.svg",
+  "united kingdom": "/flags/eng.svg",
+  esp: "/flags/esp.svg",
+  es: "/flags/esp.svg",
+  spain: "/flags/esp.svg",
+  fra: "/flags/fra.svg",
+  fr: "/flags/fra.svg",
+  france: "/flags/fra.svg",
+  ger: "/flags/ger.svg",
+  de: "/flags/ger.svg",
+  germany: "/flags/ger.svg",
+  mex: "/flags/mex.svg",
+  mx: "/flags/mex.svg",
+  mexico: "/flags/mex.svg",
+  ned: "/flags/ned.svg",
+  nl: "/flags/ned.svg",
+  netherlands: "/flags/ned.svg",
+  por: "/flags/por.svg",
+  pt: "/flags/por.svg",
+  portugal: "/flags/por.svg",
+  usa: "/flags/usa.svg",
+  us: "/flags/usa.svg",
+  "united states": "/flags/usa.svg",
+  "united states of america": "/flags/usa.svg",
+};
+
+export function getCountryFlagPath(countryName: string) {
+  return countryFlags[countryName.trim().toLowerCase()] ?? null;
+}
