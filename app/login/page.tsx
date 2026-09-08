@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import LoginForm from "@/app/login/login-form";
 import { isAdminAuthConfigured } from "@/lib/auth";
 
@@ -23,7 +25,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl items-center px-5 py-10 sm:px-8">
       <section className="w-full rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
-        <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Admin access</p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Admin access</p>
+          <Link
+            className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:border-stone-600 hover:text-stone-50"
+            href="/"
+          >
+            Go back
+          </Link>
+        </div>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-stone-50">
           Sign in to manage panoramanu
         </h1>

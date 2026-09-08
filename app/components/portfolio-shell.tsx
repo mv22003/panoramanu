@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type Ref } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import PhotoMapShell from "@/app/components/photo-map-shell";
 import { formatTakenOn } from "@/lib/photo-date";
@@ -22,20 +22,17 @@ function ViewOptions({
   activeView,
   onChange,
   compact = false,
-  navRef,
 }: {
   activeView: GalleryView;
   onChange: (view: GalleryView) => void;
   compact?: boolean;
-  navRef?: Ref<HTMLElement>;
 }) {
   return (
     <nav
       aria-label="Gallery views"
       className={`flex w-fit max-w-full flex-wrap gap-2 rounded-full border border-stone-800/80 bg-[#12100d]/80 p-1.5 ${
-        compact ? "border-stone-700/70 bg-[#12100d]/90" : "self-start"
+        compact ? "border-stone-700/70 bg-[#12100d]" : "self-start"
       }`}
-      ref={navRef}
     >
       {galleryViews.map((view) => {
         const isActive = activeView === view.id;
@@ -43,8 +40,8 @@ function ViewOptions({
         return (
           <button
             aria-pressed={isActive}
-            className={`rounded-full text-xs uppercase tracking-[0.16em] transition ${
-              compact ? "px-3 py-2" : "px-4 py-2.5 sm:px-5"
+            className={`flex items-center rounded-full text-xs uppercase tracking-[0.16em] transition ${
+              compact ? "h-9 px-3" : "h-11 px-4 sm:px-5"
             } ${
               isActive
                 ? "bg-amber-200 text-stone-950"
@@ -62,43 +59,27 @@ function ViewOptions({
   );
 }
 
-function AdminAccessControl({
-  isOpen,
-  onToggle,
-}: {
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
+function KeyIcon() {
   return (
-    <div className="relative z-20 shrink-0">
-      <button
-        aria-expanded={isOpen}
-        aria-label="Toggle access menu"
-        className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-800/80 bg-[#12100d]/80 text-stone-400 transition hover:border-stone-700 hover:text-stone-200"
-        onClick={onToggle}
-        type="button"
-      >
-        <span className="flex flex-col gap-1.5">
-          <span className="block h-px w-4 bg-current" />
-          <span className="block h-px w-4 bg-current" />
-          <span className="block h-px w-4 bg-current" />
-        </span>
-      </button>
-      <div
-        className={`absolute right-0 top-14 z-10 w-44 rounded-[1.25rem] border border-stone-800/80 bg-[#12100d]/96 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)] transition ${
-          isOpen
-            ? "pointer-events-auto translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-2 opacity-0"
-        }`}
-      >
-        <a
-          className="block rounded-[0.9rem] px-3 py-2 text-sm text-stone-300 transition hover:bg-stone-900/80 hover:text-stone-50"
-          href="/login"
-        >
-          Admin access
-        </a>
-      </div>
-    </div>
+    <svg aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
+      <circle cx="8.5" cy="15.5" r="3.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="m11 13 8-8m-2 2 2 2m-5 1 2 2" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+function AdminAccessLink({ compact = false }: { compact?: boolean }) {
+  return (
+    <a
+      aria-label="Admin access"
+      className={`inline-flex shrink-0 items-center justify-center rounded-full border border-stone-800/80 bg-[#12100d] text-stone-400 transition hover:border-stone-700 hover:text-stone-100 ${
+        compact ? "h-9 w-9" : "h-11 w-11"
+      }`}
+      href="/login"
+      title="Admin access"
+    >
+      <KeyIcon />
+    </a>
   );
 }
 
@@ -173,14 +154,14 @@ function MagnifierIcon() {
 export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [photos] = useState(initialPhotos);
   const [selectedPhotoId, setSelectedPhotoId] = useState("");
-  const [isAccessOpen, setIsAccessOpen] = useState(false);
   const [activeView, setActiveView] = useState<GalleryView>("collection");
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
   const [zoomedPhotoId, setZoomedPhotoId] = useState("");
   const galleryCardRefs = useRef(new Map<string, HTMLButtonElement>());
   const mapSectionRef = useRef<HTMLElement | null>(null);
-  const originalViewOptionsRef = useRef<HTMLElement | null>(null);
+  const stickyHeaderRef = useRef<HTMLDivElement | null>(null);
+  const stickyHeaderTopRef = useRef<number | null>(null);
 
   const selectedPhoto = useMemo(
     () => photos.find((photo) => photo.id === selectedPhotoId),
@@ -217,15 +198,17 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
   useEffect(() => {
     function handleScroll() {
-      const viewOptions = originalViewOptionsRef.current;
+      const stickyHeader = stickyHeaderRef.current;
 
-      if (!viewOptions) {
+      if (!stickyHeader) {
         return;
       }
 
-      const viewOptionsBottom =
-        viewOptions.getBoundingClientRect().top + window.scrollY + viewOptions.offsetHeight;
-      setIsScrolled(window.scrollY > viewOptionsBottom + 24);
+      const stickyHeaderTop =
+        stickyHeaderTopRef.current ??
+        (stickyHeader.getBoundingClientRect().top + window.scrollY - 96);
+      stickyHeaderTopRef.current = stickyHeaderTop;
+      setIsScrolled(window.scrollY >= stickyHeaderTop);
     }
 
     handleScroll();
@@ -348,21 +331,6 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100">
-      <header
-        className={`fixed inset-x-0 top-0 z-[900] border-b border-stone-800/80 bg-[#12100d]/88 backdrop-blur-xl transition duration-300 ${
-          isScrolled
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-full opacity-0"
-        }`}
-      >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-3 sm:px-8 lg:px-12">
-          <p className="shrink-0 text-sm font-semibold tracking-[0.12em] text-stone-100">
-            panoramanu
-          </p>
-          <ViewOptions activeView={activeView} compact onChange={changeView} />
-          <AdminAccessControl isOpen={isAccessOpen} onToggle={() => setIsAccessOpen((open) => !open)} />
-        </div>
-      </header>
       {zoomedPhoto ? (
         <div
           aria-modal="true"
@@ -478,16 +446,33 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
         </section>
 
-        <div className="flex w-fit max-w-full items-center gap-3">
-          <ViewOptions
-            activeView={activeView}
-            navRef={originalViewOptionsRef}
-            onChange={changeView}
+        <div
+          ref={stickyHeaderRef}
+          className={`relative isolate sticky top-0 z-[900] -mx-5 flex flex-wrap items-center justify-between gap-4 px-11 py-2 transition-[border-color,box-shadow] duration-300 sm:-mx-8 sm:px-16 lg:-mx-12 lg:px-[5.5rem] ${
+            isScrolled
+              ? "border-b border-stone-800/80 shadow-[0_14px_30px_rgba(0,0,0,0.18)]"
+              : "border-transparent"
+          }`}
+        >
+          <div
+            className={`pointer-events-none absolute inset-y-0 left-1/2 z-0 w-screen -translate-x-1/2 ${
+              isScrolled ? "bg-[#191712]" : "bg-transparent"
+            }`}
           />
-          <AdminAccessControl
-            isOpen={isAccessOpen}
-            onToggle={() => setIsAccessOpen((open) => !open)}
-          />
+          {isScrolled ? (
+            <p className="relative z-10 shrink-0 text-sm font-semibold tracking-tight text-stone-100">
+              panoramanu
+            </p>
+          ) : (
+            <span />
+          )}
+          <div className="relative z-10 flex w-fit max-w-full items-center gap-3">
+              <ViewOptions
+                activeView={activeView}
+                onChange={changeView}
+            />
+            <AdminAccessLink />
+          </div>
         </div>
 
         {activeView === "collection" ? (
