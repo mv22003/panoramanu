@@ -10,6 +10,14 @@ type PortfolioShellProps = {
   initialPhotos: Photo[];
 };
 
+type GalleryView = "collection" | "calendar" | "map";
+
+const galleryViews: Array<{ id: GalleryView; label: string }> = [
+  { id: "collection", label: "Gallery" },
+  { id: "calendar", label: "Calendar" },
+  { id: "map", label: "Map" },
+];
+
 function InstagramIcon() {
   return (
     <svg
@@ -82,6 +90,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [photos] = useState(initialPhotos);
   const [selectedPhotoId, setSelectedPhotoId] = useState("");
   const [isAccessOpen, setIsAccessOpen] = useState(false);
+  const [activeView, setActiveView] = useState<GalleryView>("collection");
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
   const [zoomedPhotoId, setZoomedPhotoId] = useState("");
   const galleryCardRefs = useRef(new Map<string, HTMLButtonElement>());
@@ -96,6 +105,16 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
     [photos],
   );
   const heroPhoto = slideshowPhotos[heroPhotoIndex] ?? slideshowPhotos[0];
+  const calendarPhotos = useMemo(
+    () =>
+      [...photos].sort((a, b) => {
+        if (!a.takenOn && !b.takenOn) return 0;
+        if (!a.takenOn) return 1;
+        if (!b.takenOn) return -1;
+        return b.takenOn.localeCompare(a.takenOn);
+      }),
+    [photos],
+  );
   const zoomedPhoto = useMemo(
     () => photos.find((photo) => photo.id === zoomedPhotoId),
     [photos, zoomedPhotoId],
@@ -154,7 +173,14 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
     });
   }
 
+  function changeView(view: GalleryView) {
+    setActiveView(view);
+    setSelectedPhotoId("");
+    setZoomedPhotoId("");
+  }
+
   function selectPhotoAndScrollToMap(photoId: string) {
+    changeView("map");
     setSelectedPhotoId(photoId);
 
     window.requestAnimationFrame(() => {
@@ -232,20 +258,21 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           >
             <span className="text-lg leading-none">×</span>
           </button>
-          <div
-            className="flex max-h-full w-full max-w-6xl flex-col gap-4"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <div className="flex max-h-full w-full max-w-6xl flex-col gap-4">
             <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
               {zoomedPhoto.imageUrl ? (
                 <img
                   alt={zoomedPhoto.title}
                   className="h-auto max-h-[calc(100vh-12rem)] w-auto max-w-[calc(100vw-3rem)] object-contain shadow-[0_30px_90px_rgba(0,0,0,0.45)] sm:max-w-[calc(100vw-5rem)]"
+                  onClick={(event) => event.stopPropagation()}
                   src={zoomedPhoto.imageUrl}
                 />
               ) : null}
             </div>
-            <div className="mx-auto w-full max-w-3xl border-t border-stone-800/80 pt-4 text-center">
+            <div
+              className="mx-auto w-full max-w-3xl border-t border-stone-800/80 pt-4 text-center"
+              onClick={(event) => event.stopPropagation()}
+            >
               <p className="text-xl font-semibold text-stone-50">{zoomedPhoto.title}</p>
               <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
                 {zoomedPhoto.locationName}
@@ -362,6 +389,33 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
         </section>
 
+        <nav
+          aria-label="Gallery views"
+          className="flex w-fit max-w-full flex-wrap gap-2 self-start rounded-full border border-stone-800/80 bg-[#12100d]/80 p-1.5"
+        >
+          {galleryViews.map((view) => {
+            const isActive = activeView === view.id;
+
+            return (
+              <button
+                aria-pressed={isActive}
+                className={`rounded-full px-4 py-2.5 text-xs uppercase tracking-[0.16em] transition sm:px-5 ${
+                  isActive
+                    ? "bg-amber-200 text-stone-950"
+                    : "text-stone-500 hover:bg-stone-900/80 hover:text-stone-200"
+                }`}
+                key={view.id}
+                onClick={() => changeView(view.id)}
+                type="button"
+              >
+                {view.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {activeView === "collection" ? (
+          <>
         <section className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
           <div className="flex items-baseline justify-between gap-4">
             <div>
@@ -400,9 +454,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
                       galleryCardRefs.current.delete(photo.id);
                     }}
-                    onClick={() =>
-                      setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
-                    }
+                    onClick={() => setZoomedPhotoId(photo.id)}
                     type="button"
                   >
                     <div className="overflow-hidden bg-stone-900">
@@ -482,7 +534,59 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             })}
           </div>
         </section>
+          </>
+        ) : null}
 
+        {activeView === "calendar" ? (
+          <section className="rounded-[2rem] border border-stone-800/80 bg-[#141210]/94 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
+            <div className="flex items-baseline justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
+                  Calendar
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-stone-50">
+                  Photo timeline
+                </h2>
+              </div>
+              <p className="text-right text-xs uppercase tracking-[0.18em] text-stone-500">
+                Newest first
+              </p>
+            </div>
+            <div className="mt-8 space-y-3">
+              {calendarPhotos.map((photo) => (
+                <button
+                  className="group flex w-full items-center gap-4 rounded-[1.25rem] border border-stone-800/80 bg-stone-950/45 p-3 text-left transition hover:border-stone-700 hover:bg-stone-900/70 sm:gap-5 sm:p-4"
+                  key={photo.id}
+                  onClick={() => setZoomedPhotoId(photo.id)}
+                  type="button"
+                >
+                  <div className="h-16 w-20 shrink-0 overflow-hidden rounded-lg bg-stone-900 sm:h-20 sm:w-28">
+                    {photo.imageUrl ? (
+                      <img
+                        alt=""
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        src={photo.imageUrl}
+                      />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-medium text-stone-100">
+                      {photo.title}
+                    </p>
+                    <p className="mt-1 truncate text-xs uppercase tracking-[0.16em] text-stone-500">
+                      {photo.locationName}
+                    </p>
+                  </div>
+                  <p className="shrink-0 text-right text-xs uppercase tracking-[0.14em] text-amber-200/70">
+                    {photo.takenOn ? formatTakenOn(photo.takenOn) : "Undated"}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {activeView === "map" ? (
         <section ref={mapSectionRef}>
           <div className="overflow-hidden rounded-[2rem] border border-stone-800/80 bg-[#12100d]/88 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
             <div className="flex items-center justify-between gap-4 border-b border-stone-800/80 px-6 py-4 sm:px-8">
@@ -553,6 +657,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             </div>
           </div>
         </section>
+        ) : null}
       </main>
     </div>
   );
