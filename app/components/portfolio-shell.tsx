@@ -83,11 +83,11 @@ function AdminAccessLink({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function InstagramIcon() {
+function InstagramIcon({ large = false }: { large?: boolean }) {
   return (
     <svg
       aria-hidden="true"
-      className="h-3.5 w-3.5 shrink-0"
+      className={`${large ? "h-4 w-4" : "h-3.5 w-3.5"} shrink-0`}
       fill="none"
       viewBox="0 0 24 24"
     >
@@ -123,7 +123,7 @@ function MapPinIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="h-3.5 w-3.5 shrink-0"
+      className="h-4 w-4 shrink-0"
       fill="none"
       viewBox="0 0 24 24"
     >
@@ -141,7 +141,7 @@ function MagnifierIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="h-3.5 w-3.5 shrink-0"
+      className="h-4 w-4 shrink-0"
       fill="none"
       viewBox="0 0 24 24"
     >
@@ -513,9 +513,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   <div className="relative p-5 pr-24">
                     <button
                       className="block w-full text-left"
-                      onClick={() =>
-                        setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
-                      }
+                      onClick={() => setZoomedPhotoId(photo.id)}
                       type="button"
                     >
                       <div className="space-y-1">
@@ -530,9 +528,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                     {photo.description ? (
                       <button
                         className="mt-3 block w-full text-left text-sm leading-6 text-stone-300"
-                        onClick={() =>
-                          setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
-                        }
+                        onClick={() => setZoomedPhotoId(photo.id)}
                         type="button"
                       >
                         {photo.description}
@@ -540,9 +536,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                     ) : null}
                     <button
                       className="mt-3 block text-left text-xs text-stone-500"
-                      onClick={() =>
-                        setSelectedPhotoId((currentId) => (currentId === photo.id ? "" : photo.id))
-                      }
+                      onClick={() => setZoomedPhotoId(photo.id)}
                       type="button"
                     >
                       {photo.takenOn ? `${formatTakenOn(photo.takenOn)} | ` : ""}
@@ -557,7 +551,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                           rel="noreferrer"
                           target="_blank"
                         >
-                          <InstagramIcon />
+                          <InstagramIcon large />
                         </a>
                       ) : null}
                       <button
