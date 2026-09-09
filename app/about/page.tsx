@@ -54,7 +54,7 @@ function InstagramIcon() {
 export default async function AboutPage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] px-5 py-8 text-stone-100 sm:px-8 lg:px-12 lg:py-12">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-10">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 sm:gap-10">
         <AboutHeader />
 
         <section className="grid gap-8 rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,28rem)] lg:items-center lg:p-14">
@@ -65,12 +65,12 @@ export default async function AboutPage() {
             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-stone-50 sm:text-6xl">
               The person behind the frames.
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-stone-300 sm:text-lg">
+            <p className="mt-6 max-w-2xl text-justify text-base leading-8 text-stone-300 sm:text-lg">
               Hey, I'm Manuel Verduzco, a proud Mexican living in the UK. Photography is my
               hobby, and a way for me to pay closer attention to the places and
               moments around me.
             </p>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-500 sm:text-base">
+            <p className="mt-4 max-w-2xl text-justify text-sm leading-7 text-stone-500 sm:text-base">
               I especially love taking photographs with people in them. Their
               presence makes every image feel unique.
             </p>

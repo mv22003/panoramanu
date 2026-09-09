@@ -607,45 +607,47 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
         <section className="relative rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,36rem)] lg:items-center">
             <div className="max-w-3xl lg:self-center">
-              <h1 className="mt-8 text-4xl font-semibold tracking-tight text-stone-50 sm:text-5xl">
+              <h1 className="mt-0 text-4xl font-semibold tracking-tight text-stone-50 sm:mt-8 sm:text-5xl">
                 panoramanu
               </h1>
-              <p className="mt-4 text-sm leading-7 text-stone-300 sm:text-base">
-                A personal archive of film photographs gathered across streets,
-                stations, parks, and passing light. Each frame stays close to its
-                place, so the collection reads like a map of where the camera has
-                been.
-              </p>
-              <div className="mt-6 space-y-3 text-xs uppercase tracking-[0.18em] text-stone-500">
-                <div className="flex flex-wrap gap-3">
+              <div className="mt-4 sm:block">
+                <p className="text-justify text-sm leading-7 text-stone-300 sm:text-base">
+                  A personal archive of film photographs gathered across streets,
+                  stations, parks, and passing light. Each frame stays close to its
+                  place, so the collection reads like a map of where the camera has
+                  been.
+                </p>
+                <div className="mt-5 flex flex-row justify-center gap-3 text-xs uppercase tracking-[0.18em] text-stone-500 sm:mt-6 sm:block sm:space-y-3">
+                <div>
                   <a
-                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-stone-800/80 p-0 transition hover:border-stone-700 hover:text-stone-300 sm:h-auto sm:w-auto sm:justify-start sm:gap-2 sm:px-3 sm:py-1.5 [&>svg]:h-5 [&>svg]:w-5 sm:[&>svg]:h-3.5 sm:[&>svg]:w-3.5"
                     href="https://instagram.com/panoramanu_"
                     rel="noreferrer"
                     target="_blank"
                   >
                     <InstagramIcon />
-                    Instagram / @panoramanu_
+                    <span className="hidden sm:inline">panoramanu_</span>
                   </a>
                 </div>
                 <div>
                   <a
-                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-stone-800/80 p-0 transition hover:border-stone-700 hover:text-stone-300 sm:h-auto sm:w-auto sm:justify-start sm:gap-2 sm:px-3 sm:py-1.5 [&>svg]:h-5 [&>svg]:w-5 sm:[&>svg]:h-3.5 sm:[&>svg]:w-3.5"
                     href="/about"
                   >
                     <AboutIcon />
-                    About me
+                    <span className="hidden sm:inline">About me</span>
                   </a>
                 </div>
                 <div>
                   <a
-                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-stone-800/80 p-0 transition hover:border-stone-700 hover:text-stone-300 sm:h-auto sm:w-auto sm:justify-start sm:gap-2 sm:px-3 sm:py-1.5 [&>svg]:h-5 [&>svg]:w-5 sm:[&>svg]:h-3.5 sm:[&>svg]:w-3.5"
                     href="/about#setup"
                   >
                     <CameraIcon />
-                    The setup
+                    <span className="hidden sm:inline">The setup</span>
                   </a>
                 </div>
+              </div>
               </div>
             </div>
 
