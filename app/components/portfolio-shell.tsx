@@ -574,8 +574,8 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           >
             <span className="text-lg leading-none">×</span>
           </button>
-          <div className="flex max-h-full w-full max-w-6xl flex-col gap-4">
-            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+          <div className="flex max-h-full w-fit max-w-full flex-col gap-4">
+            <div className="flex min-h-0 w-fit max-w-full flex-1 items-center justify-center overflow-hidden">
               {zoomedPhoto.imageUrl ? (
                 <img
                   alt={zoomedPhoto.title}
@@ -586,21 +586,37 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
               ) : null}
             </div>
             <div
-              className="mx-auto w-full max-w-3xl border-t border-stone-800/80 pt-4 text-center"
+              className="mx-auto flex w-full items-stretch justify-between gap-6 border-t border-stone-800/80 pt-4 text-left"
               onClick={(event) => event.stopPropagation()}
             >
-              <p className="text-xl font-semibold text-stone-50">{zoomedPhoto.title}</p>
-              <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
-                <LocationWithFlag
-                  countryName={zoomedPhoto.countryName}
-                  locationName={zoomedPhoto.locationName}
-                />
-              </p>
-              {zoomedPhoto.takenOn ? (
-                <p className="mt-2 text-sm text-stone-500">
-                  {formatTakenOn(zoomedPhoto.takenOn)}
+              <div className="flex min-h-12 min-w-0 flex-col justify-between">
+                <p className="truncate text-xl font-semibold text-stone-50">{zoomedPhoto.title}</p>
+                <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
+                  <LocationWithFlag
+                    countryName={zoomedPhoto.countryName}
+                    locationName={zoomedPhoto.locationName}
+                  />
                 </p>
-              ) : null}
+              </div>
+              <div className="flex min-h-12 shrink-0 flex-col items-end justify-between gap-2">
+                {zoomedPhoto.takenOn ? (
+                  <p className="text-sm text-stone-500">
+                    {formatTakenOn(zoomedPhoto.takenOn)}
+                  </p>
+                ) : null}
+                {zoomedPhoto.instagramUrl ? (
+                  <a
+                    aria-label={`Open ${zoomedPhoto.title} on Instagram`}
+                    className="inline-flex items-center gap-1 rounded-full border border-stone-700/90 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-stone-400 transition hover:border-stone-500 hover:text-stone-100"
+                    href={zoomedPhoto.instagramUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <InstagramIcon />
+                    Post
+                  </a>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
