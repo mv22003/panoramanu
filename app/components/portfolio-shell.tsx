@@ -235,6 +235,20 @@ function AboutIcon() {
   );
 }
 
+function CameraIcon() {
+  return (
+    <svg aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M8 6 9.5 3h5L16 6h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <circle cx="12" cy="13" r="4" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
 function MapPinIcon() {
   return (
     <svg
@@ -610,6 +624,15 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   >
                     <AboutIcon />
                     About me
+                  </a>
+                </div>
+                <div>
+                  <a
+                    className="inline-flex items-center gap-2 rounded-full border border-stone-800/80 px-3 py-1.5 transition hover:border-stone-700 hover:text-stone-300"
+                    href="/about#setup"
+                  >
+                    <CameraIcon />
+                    The setup
                   </a>
                 </div>
               </div>

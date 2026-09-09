@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AboutHeader from "@/app/components/about-header";
 
 export const metadata = {
   title: "About | panoramanu",
@@ -54,20 +54,7 @@ export default async function AboutPage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] px-5 py-8 text-stone-100 sm:px-8 lg:px-12 lg:py-12">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10">
-        <header className="flex items-center justify-between gap-4 border-b border-stone-800/80 pb-5">
-          <Link
-            className="text-xl font-semibold tracking-tight text-stone-100 transition hover:text-amber-200"
-            href="/"
-          >
-            panoramanu
-          </Link>
-          <Link
-            className="rounded-full border border-stone-700/80 px-4 py-2 text-xs uppercase tracking-[0.18em] text-stone-400 transition hover:border-stone-500 hover:text-stone-100"
-            href="/"
-          >
-            Back to gallery
-          </Link>
-        </header>
+        <AboutHeader />
 
         <section className="grid gap-8 rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,28rem)] lg:items-center lg:p-14">
           <div className="max-w-3xl">
@@ -96,7 +83,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-[2rem] border border-stone-800/80 bg-[#141210]/94">
+        <section id="setup" className="scroll-mt-32 overflow-hidden rounded-[2rem] border border-stone-800/80 bg-[#141210]/94">
           <div className="p-6 sm:p-8">
             <p className="text-xs uppercase tracking-[0.28em] text-stone-500">The setup</p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-stone-50 sm:text-3xl">
