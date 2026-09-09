@@ -75,3 +75,24 @@ select {
   background: #171411;
   color: #f5f1ea;
 }
+
+.photo-map-group {
+  display: grid;
+  place-items: center;
+  border: 2px solid #15110d;
+  border-radius: 50%;
+  background: #c69352;
+  color: #15110d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.photo-map-group-selected {
+  border: 3px solid #f3d39a;
+  background: #e7b86e;
+}
+
+.photo-map-group:focus-visible {
+  outline: 2px solid #f3d39a;
+  outline-offset: 3px;
+}
