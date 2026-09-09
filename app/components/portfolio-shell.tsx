@@ -161,9 +161,9 @@ function LocationWithFlag({
     return (
       <>
         <span className="block space-y-1 sm:hidden">
-          {place ? <span className="block">{place}</span> : null}
+          {place ? <span className="block truncate">{place}</span> : null}
           <span className="inline-flex max-w-full items-baseline gap-1">
-            <span className="min-w-0 break-words">{city}</span>
+            <span className="min-w-0 truncate">{city}</span>
             {flagPath ? (
               <img alt="" aria-hidden="true" className="h-[1em] w-auto shrink-0" src={flagPath} />
             ) : null}
@@ -178,15 +178,17 @@ function LocationWithFlag({
 
   return (
     <>
-      {locationName}
-      {flagPath ? (
-        <img
-          alt=""
-          aria-hidden="true"
-          className="ml-1 inline-block h-[1em] w-auto align-[-0.12em]"
-          src={flagPath}
-        />
-      ) : null}
+      <span className="inline-flex min-w-0 max-w-full items-baseline">
+        <span className="min-w-0 truncate">{locationName}</span>
+        {flagPath ? (
+          <img
+            alt=""
+            aria-hidden="true"
+            className="ml-1 h-[1em] w-auto shrink-0"
+            src={flagPath}
+          />
+        ) : null}
+      </span>
     </>
   );
 }

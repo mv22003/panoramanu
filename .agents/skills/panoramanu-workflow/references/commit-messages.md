@@ -1,6 +1,8 @@
 # Commit Messages
 
-Use Conventional Commits with a narrow scope that reflects the part of the portfolio being changed.
+Use Conventional Commits with a required, narrow scope that reflects the part of the portfolio being changed.
+
+Every commit must use the format `type(scope): short imperative summary`; unscoped messages such as `fix: ...` or `style: ...` are not allowed.
 
 Preferred format:
 
