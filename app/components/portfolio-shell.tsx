@@ -135,11 +135,35 @@ function formatTimelineMonth(value: string) {
 function LocationWithFlag({
   locationName,
   countryName,
+  stackedOnMobile = false,
 }: {
   locationName: string;
   countryName: string;
+  stackedOnMobile?: boolean;
 }) {
   const flagPath = getCountryFlagPath(countryName);
+  const separator = locationName.indexOf(",");
+  const place = separator >= 0 ? locationName.slice(0, separator).trim() : "";
+  const city = separator >= 0 ? locationName.slice(separator + 1).trim() : locationName;
+
+  if (stackedOnMobile) {
+    return (
+      <>
+        <span className="block space-y-1 sm:hidden">
+          {place ? <span className="block">{place}</span> : null}
+          <span className="inline-flex max-w-full items-baseline gap-1">
+            <span className="min-w-0 break-words">{city}</span>
+            {flagPath ? (
+              <img alt="" aria-hidden="true" className="h-[1em] w-auto shrink-0" src={flagPath} />
+            ) : null}
+          </span>
+        </span>
+        <span className="hidden sm:inline">
+          <LocationWithFlag locationName={locationName} countryName={countryName} />
+        </span>
+      </>
+    );
+  }
 
   return (
     <>
@@ -701,27 +725,41 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       {renderPhotoSurface(photo, "gallery")}
                     </div>
                   </button>
-                  <div className="relative p-5 pr-24">
+                  <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 p-5 sm:block sm:pr-24">
                     <button
-                      className="block w-full text-left"
+                      className="col-span-2 block w-full text-left"
                       onClick={() => setZoomedPhotoId(photo.id)}
                       type="button"
                     >
                       <div className="space-y-1">
-                        <h3 className="text-lg font-semibold text-stone-50">
+                        <div className="flex items-baseline justify-between gap-3 sm:block">
+                        <h3 className="min-w-0 break-words text-lg font-semibold text-stone-50">
                           {photo.title}
                         </h3>
+                        {photo.takenOn ? (
+                          <span className="shrink-0 text-right text-xs text-stone-500 sm:hidden">
+                            {formatTakenOn(photo.takenOn)}
+                          </span>
+                        ) : null}
+                        </div>
+                      </div>
+                    </button>
+                    <button
+                      className="col-start-1 row-start-2 min-w-0 text-left sm:mt-1"
+                      onClick={() => setZoomedPhotoId(photo.id)}
+                      type="button"
+                    >
                         <p className="text-xs uppercase tracking-[0.18em] text-stone-500">
                           <LocationWithFlag
                             countryName={photo.countryName}
                             locationName={photo.locationName}
+                            stackedOnMobile
                           />
                         </p>
-                      </div>
                     </button>
                     {photo.description ? (
                       <button
-                        className="mt-3 block w-full text-left text-sm leading-6 text-stone-300"
+                        className="col-span-2 mt-3 block w-full text-left text-sm leading-6 text-stone-300"
                         onClick={() => setZoomedPhotoId(photo.id)}
                         type="button"
                       >
@@ -729,11 +767,11 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       </button>
                     ) : null}
                     {photo.takenOn ? (
-                      <p className="mt-3 text-left text-xs text-stone-500">
+                      <p className="mt-3 hidden text-left text-xs text-stone-500 sm:block">
                         {formatTakenOn(photo.takenOn)}
                       </p>
                     ) : null}
-                    <div className="absolute bottom-5 right-5 flex gap-2">
+                    <div className="col-start-2 row-start-2 flex justify-end gap-2 sm:absolute sm:bottom-5 sm:right-5">
                       {photo.instagramUrl ? (
                         <a
                           aria-label={`Open ${photo.title} on Instagram`}
@@ -755,7 +793,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                       </button>
                       <button
                         aria-label={`Zoom ${photo.title}`}
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-700 text-stone-500 transition hover:border-stone-500 hover:text-stone-300"
+                        className="hidden h-9 w-9 items-center justify-center rounded-full border border-stone-700 text-stone-500 transition hover:border-stone-500 hover:text-stone-300 sm:flex"
                         onClick={() => setZoomedPhotoId(photo.id)}
                         type="button"
                       >
