@@ -78,7 +78,7 @@ export default async function AboutPage() {
           <div className="overflow-hidden rounded-[1.5rem] border border-stone-800/80 bg-[#0f0d0a]">
             <img
               alt="The photographer behind panoramanu"
-              className="aspect-[4/5] h-full w-full object-cover"
+              className="aspect-[4/5] h-full w-full object-cover lg:aspect-auto lg:h-[20rem]"
               src="/about/photographer.jpg"
             />
           </div>
