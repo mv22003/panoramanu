@@ -37,7 +37,7 @@ function ViewOptions({
   return (
     <nav
       aria-label="Gallery views"
-      className={`flex w-fit max-w-full flex-wrap gap-2 rounded-full border border-stone-800/80 bg-[#12100d]/80 p-1.5 ${
+      className={`flex w-fit shrink-0 flex-nowrap gap-1 rounded-full border border-stone-800/80 bg-[#12100d]/80 p-1.5 sm:gap-2 ${
         compact ? "border-stone-700/70 bg-[#12100d]" : "self-start"
       }`}
     >
@@ -47,8 +47,9 @@ function ViewOptions({
         return (
           <button
             aria-pressed={isActive}
-            className={`flex items-center rounded-full text-xs uppercase tracking-[0.16em] transition ${
-              compact ? "h-9 px-3" : "h-11 px-4 sm:px-5"
+            title={view.label}
+            className={`flex shrink-0 items-center justify-center rounded-full text-xs uppercase tracking-[0.16em] transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${
+              compact ? "h-11 w-11 sm:h-9 sm:w-auto sm:px-3" : "h-11 w-11 sm:w-auto sm:px-5"
             } ${
               isActive
                 ? "bg-amber-200 text-stone-950"
@@ -58,11 +59,46 @@ function ViewOptions({
             onClick={() => onChange(view.id)}
             type="button"
           >
-            {view.label}
+            <ViewIcon view={view.id} />
+            <span className="sr-only sm:not-sr-only">{view.label}</span>
           </button>
         );
       })}
     </nav>
+  );
+}
+
+function ViewIcon({ view }: { view: GalleryView }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-5 w-5 sm:hidden"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {view === "collection" ? (
+        <>
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </>
+      ) : view === "calendar" ? (
+        <>
+          <path d="M6 3v18M11 5h9M11 12h6M11 19h9" />
+          <path d="M4 5h4M4 12h4M4 19h4" />
+        </>
+      ) : (
+        <>
+          <path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Z" />
+          <path d="M9 3v16M15 5v16" />
+        </>
+      )}
+    </svg>
   );
 }
 
@@ -584,7 +620,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
         <div
           ref={stickyHeaderRef}
-          className={`relative isolate sticky top-0 z-[900] -mx-5 flex flex-wrap items-center justify-between gap-4 px-11 py-2 transition-[border-color,box-shadow] duration-300 sm:-mx-8 sm:px-16 lg:-mx-12 lg:px-[5.5rem] ${
+          className={`relative isolate sticky top-0 z-[900] -mx-5 flex flex-nowrap items-center justify-between gap-1 px-11 py-2 transition-[border-color,box-shadow] duration-300 sm:-mx-8 sm:flex-wrap sm:gap-4 sm:px-16 lg:-mx-12 lg:px-[5.5rem] ${
             isScrolled
               ? "border-b border-stone-800/80 shadow-[0_14px_30px_rgba(0,0,0,0.18)]"
               : "border-transparent"
@@ -598,7 +634,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           {isScrolled ? (
             <a
               aria-label="Back to top"
-              className="relative z-10 shrink-0 text-xl font-semibold tracking-tight text-stone-100 transition hover:text-amber-200"
+              className="relative z-10 min-w-0 truncate text-lg font-semibold tracking-tight text-stone-100 transition hover:text-amber-200 sm:shrink-0 sm:text-xl"
               href="#top"
               onClick={(event) => {
                 event.preventDefault();
@@ -610,12 +646,14 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           ) : (
             <span />
           )}
-          <div className="relative z-10 flex w-fit max-w-full items-center gap-3">
+          <div className="relative z-10 flex w-fit shrink-0 items-center gap-1 sm:gap-3">
               <ViewOptions
                 activeView={activeView}
                 onChange={changeView}
             />
-            <AdminAccessLink />
+            <div className={isScrolled ? "hidden sm:flex" : "flex"}>
+              <AdminAccessLink />
+            </div>
           </div>
         </div>
 
