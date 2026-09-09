@@ -109,6 +109,40 @@ function formatTimelineMonth(value: string) {
   );
 }
 
+function timelinePhotoGridClass(count: number) {
+  if (count === 1) {
+    return "grid-cols-1";
+  }
+
+  if (count === 2) {
+    return "grid-cols-1 sm:grid-cols-2";
+  }
+
+  if (count === 3) {
+    return "grid-cols-1 sm:grid-cols-3";
+  }
+
+  if (count === 4) {
+    return "grid-cols-1 sm:grid-cols-2";
+  }
+
+  return "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3";
+}
+
+function timelinePhotoRowClass(count: number) {
+  if (count === 2) return "grid-cols-1 sm:grid-cols-4";
+  if (count === 3) return "grid-cols-1 sm:grid-cols-6";
+  if (count === 4) return "grid-cols-1 sm:grid-cols-8";
+  if (count === 5) return "grid-cols-1 sm:grid-cols-10";
+  return "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3";
+}
+
+function timelinePhotoCardClass(isStackedRow: boolean, isCenteredStart: boolean) {
+  return "group flex min-w-0 items-center gap-3 rounded-xl border border-stone-800/80 bg-stone-950/50 p-2 text-left transition hover:border-stone-700 hover:bg-stone-900/70 sm:gap-4 sm:p-3" +
+    (isStackedRow ? " sm:col-span-2" : "") +
+    (isCenteredStart ? " sm:col-start-2" : "");
+}
+
 function LocationWithFlag({
   locationName,
   countryName,
@@ -833,35 +867,58 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                         <p className="text-xs uppercase tracking-[0.16em] text-amber-200/70">
                           {row.label}
                         </p>
-                        <div className="flex flex-wrap gap-3">
-                          {row.photos.map((photo) => (
-                            <button
-                              className="group flex min-w-0 flex-1 basis-[16rem] items-center gap-3 rounded-xl border border-stone-800/80 bg-stone-950/50 p-2 text-left transition hover:border-stone-700 hover:bg-stone-900/70 sm:gap-4 sm:p-3"
-                              key={photo.id}
-                              onClick={() => setZoomedPhotoId(photo.id)}
-                              type="button"
+                        <div className="space-y-3">
+                          {(row.photos.length > 4
+                            ? [
+                                row.photos.slice(0, Math.ceil(row.photos.length / 2)),
+                                row.photos.slice(Math.ceil(row.photos.length / 2)),
+                              ]
+                            : [row.photos]
+                          ).map((photoRow, rowIndex) => (
+                            <div
+                              className={`grid gap-3 ${
+                                row.photos.length > 4
+                                  ? timelinePhotoRowClass(Math.ceil(row.photos.length / 2))
+                                  : timelinePhotoGridClass(photoRow.length)
+                              }`}
+                              key={`${row.key}-${rowIndex}`}
                             >
-                              <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-stone-900 sm:h-16 sm:w-24">
-                                {photo.imageUrl ? (
-                                  <img
-                                    alt=""
-                                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                                    src={photo.imageUrl}
-                                  />
-                                ) : null}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-medium text-stone-100">
-                                  {photo.title}
-                                </p>
-                                <p className="mt-1 truncate text-xs uppercase tracking-[0.14em] text-stone-500">
-                                  <LocationWithFlag
-                                    countryName={photo.countryName}
-                                    locationName={photo.locationName}
-                                  />
-                                </p>
-                              </div>
-                            </button>
+                              {photoRow.map((photo) => (
+                                <button
+                                  className={timelinePhotoCardClass(
+                                    row.photos.length > 4,
+                                    row.photos.length > 4 &&
+                                      rowIndex === 1 &&
+                                      photoRow.length < Math.ceil(row.photos.length / 2) &&
+                                      photo === photoRow[0],
+                                  )}
+                                  key={photo.id}
+                                  onClick={() => setZoomedPhotoId(photo.id)}
+                                  type="button"
+                                >
+                                  <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-stone-900 sm:h-16 sm:w-24">
+                                    {photo.imageUrl ? (
+                                      <img
+                                        alt=""
+                                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                        src={photo.imageUrl}
+                                      />
+                                    ) : null}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="truncate text-sm font-medium text-stone-100">
+                                      {photo.title}
+                                    </p>
+                                    <p className="mt-1 truncate text-xs uppercase tracking-[0.14em] text-stone-500">
+                                      <LocationWithFlag
+                                        countryName={photo.countryName}
+                                        locationName={photo.locationName}
+                                      />
+                                    </p>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
                           ))}
                         </div>
                       </div>
