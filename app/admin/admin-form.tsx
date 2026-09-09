@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 
 import type { Photo } from "@/lib/photos";
-import { addPhoto, type AdminFormState } from "@/app/admin/actions";
+import { addPhoto, preparePhotoUpload, type AdminFormState } from "@/app/admin/actions";
 
 const initialAdminFormState: AdminFormState = {
   error: "",
@@ -13,6 +13,43 @@ const initialAdminFormState: AdminFormState = {
 type AdminFormProps = {
   photo?: Photo | null;
 };
+
+async function savePhotoWithUploads(
+  previousState: AdminFormState,
+  formData: FormData,
+): Promise<AdminFormState> {
+  try {
+    const files = [
+      { file: formData.get("framedImageFile"), field: "imageUrl" },
+      { file: formData.get("slideshowImageFile"), field: "slideshowImageUrl" },
+    ];
+    formData.delete("framedImageFile");
+    formData.delete("slideshowImageFile");
+
+    for (const { file, field } of files) {
+      if (!(file instanceof File) || file.size === 0) continue;
+
+      const { upload, error } = await preparePhotoUpload(file.name, file.type);
+      if (!upload) throw new Error(error);
+
+      const body = new FormData();
+      body.append("cacheControl", "3600");
+      body.append("", file);
+      const response = await fetch(upload.signedUrl, { method: "PUT", body });
+      if (!response.ok) {
+        throw new Error(`Unable to upload ${file.name}. Please try again (status ${response.status}).`);
+      }
+      formData.set(field, upload.publicUrl);
+    }
+
+    return await addPhoto(previousState, formData);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Unable to save photo. Please try again.",
+      message: "",
+    };
+  }
+}
 
 function getTakenOnMonth(value: string | null | undefined) {
   const takenOn = String(value ?? "").trim();
@@ -25,7 +62,7 @@ function getTakenOnMonth(value: string | null | undefined) {
 }
 
 export default function AdminForm({ photo }: AdminFormProps) {
-  const [state, formAction, pending] = useActionState(addPhoto, initialAdminFormState);
+  const [state, formAction, pending] = useActionState(savePhotoWithUploads, initialAdminFormState);
   const isEditing = Boolean(photo);
 
   return (

@@ -40,25 +40,18 @@ function getExtension(filename: string) {
   return extension || ".jpg";
 }
 
-export async function saveUploadedPhoto(file: File) {
-  if (!file || file.size === 0) {
-    return "";
-  }
-
-  if (!file.type.startsWith("image/")) {
+export async function createPhotoUpload(filename: string, contentType: string) {
+  if (!filename || filename.length > 255 || !contentType.startsWith("image/")) {
     throw new Error("Uploaded files must be images.");
   }
 
   const bucket = getStorageBucket();
   const client = createStorageClient();
-  const filename = `${randomUUID()}${getExtension(file.name)}`;
-  const objectPath = `photos/${filename}`;
+  const objectPath = `photos/${randomUUID()}${getExtension(filename)}`;
 
-  const { error: uploadError } = await client.storage.from(bucket).upload(objectPath, file, {
-    cacheControl: "3600",
-    contentType: file.type || undefined,
-    upsert: false,
-  });
+  const { data: upload, error: uploadError } = await client.storage
+    .from(bucket)
+    .createSignedUploadUrl(objectPath);
 
   if (uploadError) {
     throw new Error(uploadError.message);
@@ -66,5 +59,5 @@ export async function saveUploadedPhoto(file: File) {
 
   const { data } = client.storage.from(bucket).getPublicUrl(objectPath);
 
-  return data.publicUrl;
+  return { signedUrl: upload.signedUrl, publicUrl: data.publicUrl };
 }
