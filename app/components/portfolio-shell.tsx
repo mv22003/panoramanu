@@ -592,7 +592,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
         </div>
       ) : null}
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
         <section className="relative rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,36rem)] lg:items-center">
             <div className="max-w-3xl lg:self-center">
