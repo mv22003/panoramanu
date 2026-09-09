@@ -103,10 +103,10 @@ export default async function AboutPage() {
                   />
                   </div>
                   <div className="mt-1 flex w-full flex-wrap justify-center gap-x-3 gap-y-1 text-center sm:hidden">
-                    <a className="text-xs uppercase tracking-[0.16em] text-stone-400 transition hover:text-amber-200" href={item.href} rel="sponsored noreferrer" target="_blank">
+                    <a className="inline-flex min-h-9 items-center rounded-full border border-stone-700/90 bg-[#1d1812] px-3 text-xs uppercase tracking-[0.14em] text-stone-300 transition hover:border-amber-200/70 hover:bg-amber-200 hover:text-stone-950" href={item.href} rel="sponsored noreferrer" target="_blank">
                       {item.singleHref ? "View 3-pack" : `View ${item.label.toLowerCase()}`}
                     </a>
-                    {item.singleHref && <a className="text-xs uppercase tracking-[0.16em] text-stone-400 transition hover:text-amber-200" href={item.singleHref} rel="sponsored noreferrer" target="_blank">View 1-pack</a>}
+                    {item.singleHref && <a className="inline-flex min-h-9 items-center rounded-full border border-stone-700/90 bg-[#1d1812] px-3 text-xs uppercase tracking-[0.14em] text-stone-300 transition hover:border-amber-200/70 hover:bg-amber-200 hover:text-stone-950" href={item.singleHref} rel="sponsored noreferrer" target="_blank">View 1-pack</a>}
                   </div>
                 </div>
                 <div className="col-start-2 row-start-1 min-w-0 pt-1">
@@ -114,10 +114,10 @@ export default async function AboutPage() {
                   <h3 className="mt-3 text-lg font-semibold text-stone-100">{item.value}</h3>
                   <p className="mt-2 text-sm leading-6 text-stone-500">{item.detail}</p>
                   <div className="mt-4 hidden flex-wrap gap-x-4 gap-y-2 sm:flex">
-                    <a className="text-xs uppercase tracking-[0.18em] text-stone-400 transition hover:text-amber-200" href={item.href} rel="sponsored noreferrer" target="_blank">
+                    <a className="inline-flex min-h-9 items-center rounded-full border border-stone-700/90 bg-[#1d1812] px-3 text-xs uppercase tracking-[0.14em] text-stone-300 transition hover:border-amber-200/70 hover:bg-amber-200 hover:text-stone-950" href={item.href} rel="sponsored noreferrer" target="_blank">
                       {item.singleHref ? "View 3-pack" : `View ${item.label.toLowerCase()}`}
                     </a>
-                    {item.singleHref && <a className="text-xs uppercase tracking-[0.18em] text-stone-400 transition hover:text-amber-200" href={item.singleHref} rel="sponsored noreferrer" target="_blank">View 1-pack</a>}
+                    {item.singleHref && <a className="inline-flex min-h-9 items-center rounded-full border border-stone-700/90 bg-[#1d1812] px-3 text-xs uppercase tracking-[0.14em] text-stone-300 transition hover:border-amber-200/70 hover:bg-amber-200 hover:text-stone-950" href={item.singleHref} rel="sponsored noreferrer" target="_blank">View 1-pack</a>}
                   </div>
                 </div>
               </article>
