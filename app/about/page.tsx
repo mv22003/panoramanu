@@ -11,12 +11,15 @@ const equipment = [
     value: "Kodak Ektar H35",
     detail: "A compact half-frame 35mm film camera.",
     imagePath: "/about/camera.jpg",
+    href: "https://amzn.to/4gQJ0sw",
   },
   {
     label: "Film",
     value: "Kodak UltraMax 400",
     detail: "A versatile 35mm color film rated at ISO 400.",
     imagePath: "/about/film.png",
+    href: "https://amzn.to/3SBwKnP",
+    singleHref: "https://amzn.to/4cywfBz",
   },
 ];
 
@@ -103,25 +106,39 @@ export default async function AboutPage() {
 
           <div className="grid gap-px border-t border-stone-800/80 bg-stone-800/80 sm:grid-cols-2">
             {equipment.map((item) => (
-              <article className="flex items-start gap-5 bg-[#141210] p-6 sm:p-8" key={item.label}>
-                <div className="w-36 shrink-0 overflow-hidden rounded-[1.25rem] border border-stone-800/80 bg-[#0f0d0a] sm:w-44">
+              <article className="grid grid-cols-[9rem_minmax(0,1fr)] items-start gap-5 bg-[#141210] p-6 sm:grid-cols-[11rem_minmax(0,1fr)] sm:p-8" key={item.label}>
+                <div className="col-start-1 row-start-1 w-36 sm:w-44">
+                  <div className="overflow-hidden rounded-[1.25rem] border border-stone-800/80 bg-[#0f0d0a]">
                   <img
                     alt={`${item.label} used by panoramanu`}
                     className="aspect-[4/3] h-full w-full object-cover"
                     src={item.imagePath}
                   />
+                  </div>
+                  <div className="mt-1 flex w-full flex-wrap justify-center gap-x-3 gap-y-1 text-center sm:hidden">
+                    <a className="text-xs uppercase tracking-[0.16em] text-stone-400 transition hover:text-amber-200" href={item.href} rel="sponsored noreferrer" target="_blank">
+                      {item.singleHref ? "View 3-pack" : `View ${item.label.toLowerCase()}`}
+                    </a>
+                    {item.singleHref && <a className="text-xs uppercase tracking-[0.16em] text-stone-400 transition hover:text-amber-200" href={item.singleHref} rel="sponsored noreferrer" target="_blank">View 1-pack</a>}
+                  </div>
                 </div>
-                <div className="min-w-0 pt-1">
+                <div className="col-start-2 row-start-1 min-w-0 pt-1">
                   <p className="text-xs uppercase tracking-[0.24em] text-stone-500">{item.label}</p>
                   <h3 className="mt-3 text-lg font-semibold text-stone-100">{item.value}</h3>
                   <p className="mt-2 text-sm leading-6 text-stone-500">{item.detail}</p>
-                  <span className="mt-4 inline-block text-xs uppercase tracking-[0.18em] text-stone-400">
-                    View {item.label.toLowerCase()}
-                  </span>
+                  <div className="mt-4 hidden flex-wrap gap-x-4 gap-y-2 sm:flex">
+                    <a className="text-xs uppercase tracking-[0.18em] text-stone-400 transition hover:text-amber-200" href={item.href} rel="sponsored noreferrer" target="_blank">
+                      {item.singleHref ? "View 3-pack" : `View ${item.label.toLowerCase()}`}
+                    </a>
+                    {item.singleHref && <a className="text-xs uppercase tracking-[0.18em] text-stone-400 transition hover:text-amber-200" href={item.singleHref} rel="sponsored noreferrer" target="_blank">View 1-pack</a>}
+                  </div>
                 </div>
               </article>
             ))}
           </div>
+          <p className="border-t border-stone-800/80 px-6 py-4 text-right text-xs leading-5 text-stone-500 sm:px-8">
+            As an Amazon Associate I earn from qualifying purchases.
+          </p>
         </section>
 
         <section className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-stone-800/80 bg-[#171411]/92 p-6 sm:p-8">
