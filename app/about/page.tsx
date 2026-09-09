@@ -1,4 +1,5 @@
 import AboutHeader from "@/app/components/about-header";
+import SiteFooter from "@/app/components/site-footer";
 
 export const metadata = {
   title: "About | panoramanu",
@@ -155,17 +156,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        <footer className="flex justify-center border-t border-stone-800/60 pt-6 text-xs uppercase tracking-[0.18em] text-stone-500">
-          <a
-            className="inline-flex items-center gap-2 transition hover:text-stone-300"
-            href="https://github.com/mv22003/panoramanu"
-            rel="noreferrer"
-            target="_blank"
-          >
-            <GitHubIcon />
-            GitHub
-          </a>
-        </footer>
+        <SiteFooter />
       </div>
     </main>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import PhotoMapShell from "@/app/components/photo-map-shell";
+import SiteFooter from "@/app/components/site-footer";
 import { getCountryFlagPath } from "@/lib/country";
 import { formatTakenOn } from "@/lib/photo-date";
 import type { Photo } from "@/lib/photos";
@@ -99,30 +100,6 @@ function ViewIcon({ view }: { view: GalleryView }) {
         </>
       )}
     </svg>
-  );
-}
-
-function KeyIcon() {
-  return (
-    <svg aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
-      <circle cx="8.5" cy="15.5" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="m11 13 8-8m-2 2 2 2m-5 1 2 2" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function AdminAccessLink({ compact = false }: { compact?: boolean }) {
-  return (
-    <a
-      aria-label="Admin access"
-      className={`inline-flex shrink-0 items-center justify-center rounded-full border border-stone-800/80 bg-[#12100d] text-stone-400 transition hover:border-stone-700 hover:text-stone-100 ${
-        compact ? "h-9 w-9" : "h-11 w-11"
-      }`}
-      href="/login"
-      title="Admin access"
-    >
-      <KeyIcon />
-    </a>
   );
 }
 
@@ -694,13 +671,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
             <span />
           )}
           <div className="relative z-10 flex w-fit shrink-0 items-center gap-1 sm:gap-3">
-              <ViewOptions
-                activeView={activeView}
-                onChange={changeView}
-            />
-            <div className={isScrolled ? "hidden sm:flex" : "flex"}>
-              <AdminAccessLink />
-            </div>
+            <ViewOptions activeView={activeView} onChange={changeView} />
           </div>
         </div>
 
@@ -982,24 +953,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           </div>
         </section>
         ) : null}
-        <footer className="flex justify-center border-t border-stone-800/60 pt-6 text-xs uppercase tracking-[0.18em] text-stone-500">
-          <a
-            className="mr-6 inline-flex items-center gap-2 transition hover:text-stone-300"
-            href="/about"
-          >
-            <AboutIcon />
-            About
-          </a>
-          <a
-            className="inline-flex items-center gap-2 transition hover:text-stone-300"
-            href="https://github.com/mv22003/panoramanu"
-            rel="noreferrer"
-            target="_blank"
-          >
-            <GitHubIcon />
-            GitHub
-          </a>
-        </footer>
+        <SiteFooter includeAbout />
       </main>
     </div>
   );
