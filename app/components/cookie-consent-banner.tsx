@@ -42,7 +42,7 @@ export default function CookieConsentBanner() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
+    <div className="fixed inset-x-0 bottom-4 z-[3000] flex justify-center px-4">
       <div className="w-full max-w-2xl rounded-[1.5rem] border border-stone-800/80 bg-[#12100d]/96 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">
