@@ -48,8 +48,8 @@ export default function CookieConsentBanner() {
           <div className="max-w-xl">
             <p className="text-sm font-medium text-stone-100">Cookie consent</p>
             <p className="mt-2 text-sm leading-6 text-stone-400">
-              This site only records anonymous visit sessions after you accept cookies.
-              It stores no IP addresses and uses the data only to power the admin analytics view.
+              This site uses privacy-friendly analytics only after you accept cookies.
+              You can decline and browse without analytics tracking.
             </p>
           </div>
           <div className="flex gap-2">

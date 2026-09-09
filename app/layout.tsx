@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import CookieConsentBanner from "./components/cookie-consent-banner";
+import VercelAnalytics from "./components/vercel-analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         {children}
         <CookieConsentBanner />
+        <VercelAnalytics />
       </body>
     </html>
   );
