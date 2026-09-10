@@ -1,9 +1,11 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import path from "node:path";
 
 import { createClient } from "@supabase/supabase-js";
+
+export const MAX_PHOTO_UPLOAD_BYTES = 10 * 1024 * 1024;
+const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function getStorageBucket() {
   return process.env.SUPABASE_STORAGE_BUCKET?.trim() ?? "";
@@ -35,19 +37,33 @@ function createStorageClient() {
   });
 }
 
-function getExtension(filename: string) {
-  const extension = path.extname(filename).toLowerCase();
-  return extension || ".jpg";
+function getExtension(contentType: string) {
+  switch (contentType) {
+    case "image/png":
+      return ".png";
+    case "image/webp":
+      return ".webp";
+    default:
+      return ".jpg";
+  }
 }
 
-export async function createPhotoUpload(filename: string, contentType: string) {
-  if (!filename || filename.length > 255 || !contentType.startsWith("image/")) {
-    throw new Error("Uploaded files must be images.");
+export async function createPhotoUpload(
+  filename: string,
+  contentType: string,
+  size: number,
+) {
+  if (!filename || filename.length > 255 || !ALLOWED_PHOTO_TYPES.has(contentType)) {
+    throw new Error("Only JPEG, PNG, and WebP photos can be uploaded.");
+  }
+
+  if (!Number.isSafeInteger(size) || size <= 0 || size > MAX_PHOTO_UPLOAD_BYTES) {
+    throw new Error("Photos must be smaller than 10 MB.");
   }
 
   const bucket = getStorageBucket();
   const client = createStorageClient();
-  const objectPath = `photos/${randomUUID()}${getExtension(filename)}`;
+  const objectPath = `photos/${randomUUID()}${getExtension(contentType)}`;
 
   const { data: upload, error: uploadError } = await client.storage
     .from(bucket)

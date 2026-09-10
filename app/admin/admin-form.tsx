@@ -1,9 +1,13 @@
 'use client'
 
-import { useActionState } from "react";
+import { useActionState, useRef, useState } from "react";
 
 import type { Photo } from "@/lib/photos";
-import { addPhoto, preparePhotoUpload, type AdminFormState } from "@/app/admin/actions";
+import {
+  addPhoto,
+  preparePhotoUpload,
+  type AdminFormState,
+} from "@/app/admin/actions";
 
 const initialAdminFormState: AdminFormState = {
   error: "",
@@ -29,7 +33,11 @@ async function savePhotoWithUploads(
     for (const { file, field } of files) {
       if (!(file instanceof File) || file.size === 0) continue;
 
-      const { upload, error } = await preparePhotoUpload(file.name, file.type);
+      const { upload, error } = await preparePhotoUpload(
+        file.name,
+        file.type,
+        file.size,
+      );
       if (!upload) throw new Error(error);
 
       const body = new FormData();
@@ -61,9 +69,29 @@ function getTakenOnMonth(value: string | null | undefined) {
   return takenOn.slice(0, 7);
 }
 
+function formatFileSize(bytes: number) {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function AdminForm({ photo }: AdminFormProps) {
   const [state, formAction, pending] = useActionState(savePhotoWithUploads, initialAdminFormState);
+  const [framedFile, setFramedFile] = useState<File | null>(null);
+  const [slideshowFile, setSlideshowFile] = useState<File | null>(null);
+  const framedInputRef = useRef<HTMLInputElement>(null);
+  const slideshowInputRef = useRef<HTMLInputElement>(null);
   const isEditing = Boolean(photo);
+
+  function clearFile(
+    inputRef: { current: HTMLInputElement | null },
+    setFile: (file: File | null) => void,
+  ) {
+    setFile(null);
+    if (inputRef.current) inputRef.current.value = "";
+  }
 
   return (
     <form action={formAction} className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -132,12 +160,37 @@ export default function AdminForm({ photo }: AdminFormProps) {
           Upload framed file{" "}
           <span className="normal-case tracking-normal text-stone-600">(optional)</span>
         </span>
-        <input
-          accept="image/*"
-          className="block w-full rounded-2xl border border-dashed border-stone-700 bg-stone-900/60 px-4 py-4 text-sm text-stone-300 file:mr-4 file:rounded-full file:border-0 file:bg-amber-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-stone-950 hover:file:bg-amber-100"
-          name="framedImageFile"
-          type="file"
-        />
+        <label
+          className="flex min-h-[66px] cursor-pointer items-center gap-4 rounded-2xl border border-dashed border-stone-700 bg-stone-900/60 px-4 py-3 text-sm text-stone-300 transition hover:border-stone-600"
+          htmlFor="framedImageFile"
+        >
+          <span className="shrink-0 rounded-full bg-amber-200 px-4 py-2 font-medium text-stone-950">Choose File</span>
+          <span className="min-w-0 flex-1 truncate">
+            {framedFile ? `${framedFile.name} (${formatFileSize(framedFile.size)})` : "No file chosen"}
+          </span>
+          {framedFile ? (
+            <button
+              aria-label="Deselect framed photo"
+              className="shrink-0 text-lg leading-none text-stone-500 transition hover:text-stone-100"
+              onClick={(event) => {
+                event.preventDefault();
+                clearFile(framedInputRef, setFramedFile);
+              }}
+              type="button"
+            >
+              ×
+            </button>
+          ) : null}
+          <input
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            id="framedImageFile"
+            name="framedImageFile"
+            onChange={(event) => setFramedFile(event.target.files?.[0] ?? null)}
+            ref={framedInputRef}
+            type="file"
+          />
+        </label>
         <span className="mt-2 block text-xs leading-6 text-stone-500">
           Uploaded files are stored in Supabase Storage when it is configured.
         </span>
@@ -148,12 +201,37 @@ export default function AdminForm({ photo }: AdminFormProps) {
           Upload slideshow file{" "}
           <span className="normal-case tracking-normal text-stone-600">(unframed, optional)</span>
         </span>
-        <input
-          accept="image/*"
-          className="block w-full rounded-2xl border border-dashed border-stone-700 bg-stone-900/60 px-4 py-4 text-sm text-stone-300 file:mr-4 file:rounded-full file:border-0 file:bg-amber-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-stone-950 hover:file:bg-amber-100"
-          name="slideshowImageFile"
-          type="file"
-        />
+        <label
+          className="flex min-h-[66px] cursor-pointer items-center gap-4 rounded-2xl border border-dashed border-stone-700 bg-stone-900/60 px-4 py-3 text-sm text-stone-300 transition hover:border-stone-600"
+          htmlFor="slideshowImageFile"
+        >
+          <span className="shrink-0 rounded-full bg-amber-200 px-4 py-2 font-medium text-stone-950">Choose File</span>
+          <span className="min-w-0 flex-1 truncate">
+            {slideshowFile ? `${slideshowFile.name} (${formatFileSize(slideshowFile.size)})` : "No file chosen"}
+          </span>
+          {slideshowFile ? (
+            <button
+              aria-label="Deselect slideshow photo"
+              className="shrink-0 text-lg leading-none text-stone-500 transition hover:text-stone-100"
+              onClick={(event) => {
+                event.preventDefault();
+                clearFile(slideshowInputRef, setSlideshowFile);
+              }}
+              type="button"
+            >
+              ×
+            </button>
+          ) : null}
+          <input
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            id="slideshowImageFile"
+            name="slideshowImageFile"
+            onChange={(event) => setSlideshowFile(event.target.files?.[0] ?? null)}
+            ref={slideshowInputRef}
+            type="file"
+          />
+        </label>
         <span className="mt-2 block text-xs leading-6 text-stone-500">
           Only photos with an unframed image appear in the slideshow.
         </span>

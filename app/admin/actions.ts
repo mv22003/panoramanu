@@ -15,10 +15,14 @@ async function requireAdmin() {
   await requireAdminSession();
 }
 
-export async function preparePhotoUpload(filename: string, contentType: string) {
+export async function preparePhotoUpload(
+  filename: string,
+  contentType: string,
+  size: number,
+) {
   try {
     await requireAdmin();
-    const upload = await createPhotoUpload(filename, contentType);
+    const upload = await createPhotoUpload(filename, contentType, size);
     return { upload, error: "" };
   } catch (error) {
     return {
