@@ -3,7 +3,10 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
-const ADMIN_SESSION_COOKIE = "panoramanu_admin_session";
+const ADMIN_SESSION_COOKIE =
+  process.env.NODE_ENV === "production"
+    ? "__Host-panoramanu_admin_session"
+    : "panoramanu_admin_session";
 const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 
 function getAdminAccessKey() {
