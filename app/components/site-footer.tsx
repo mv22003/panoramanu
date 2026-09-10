@@ -24,7 +24,18 @@ function AboutIcon() {
   );
 }
 
-export default function SiteFooter({ includeAbout = false }: { includeAbout?: boolean }) {
+function CookieIcon() {
+  return (
+    <svg aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
+      <path d="M20.5 13.2a7.8 7.8 0 1 1-9.7-9.7 4.2 4.2 0 0 0 4.8 4.8 4.2 4.2 0 0 0 4.9 4.9Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+      <circle cx="8.5" cy="12" fill="currentColor" r="1" />
+      <circle cx="12" cy="16" fill="currentColor" r="1" />
+      <circle cx="7.5" cy="7.5" fill="currentColor" r="1" />
+    </svg>
+  );
+}
+
+export default function SiteFooter({ includeAbout = false, includePrivacy = true }: { includeAbout?: boolean; includePrivacy?: boolean }) {
   return (
     <footer className="flex flex-wrap justify-center gap-x-6 gap-y-3 border-t border-stone-800/60 pt-6 text-xs uppercase tracking-[0.18em] text-stone-500">
       {includeAbout ? (
@@ -41,6 +52,12 @@ export default function SiteFooter({ includeAbout = false }: { includeAbout?: bo
         <KeyIcon />
         Admin
       </a>
+      {includePrivacy ? (
+        <a className="inline-flex items-center gap-2 transition hover:text-stone-300" href="/privacy">
+          <CookieIcon />
+          Privacy &amp; Cookies
+        </a>
+      ) : null}
     </footer>
   );
 }
