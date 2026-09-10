@@ -10,7 +10,7 @@
     "import:photos-to-postgres": "node scripts/import-photos-to-postgres.mjs",
     "restore:photo-urls": "node scripts/restore-supabase-photo-urls.mjs",
     "lint": "eslint",
-    "postinstall": "prisma skills sync || exit 0"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
