@@ -53,6 +53,7 @@ export async function addPhoto(
       slideshowImageUrl:
         String(formData.get("slideshowImageUrl") ?? "").trim() ||
         fallbackSlideshowImageUrl,
+      isFilm: formData.get("isFilm") === "on",
     });
 
     if (photoId) {

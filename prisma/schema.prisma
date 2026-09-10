@@ -18,6 +18,7 @@ model Photo {
   instagramUrl         String    @map("instagram_url")
   locationName         String    @map("location_name")
   countryName          String    @map("country_name")
+  isFilm               Boolean   @default(true) @map("is_film")
   takenOn              DateTime? @map("taken_on") @db.Date
   lat                  Float
   lng                  Float

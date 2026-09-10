@@ -304,6 +304,25 @@ export default function AdminForm({ photo }: AdminFormProps) {
         </label>
       </div>
 
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">
+          Capture medium
+        </span>
+        <span className="flex min-h-[66px] items-center justify-center gap-3 rounded-2xl border border-stone-700 bg-stone-900/80 px-4 py-3">
+          <input className="peer sr-only" defaultChecked={photo?.isFilm ?? true} name="isFilm" type="checkbox" />
+          <span className="text-[10px] uppercase tracking-[0.18em] text-stone-500 transition peer-checked:text-amber-200">
+            Film
+          </span>
+          <span className="relative inline-flex items-center peer-checked:[&>span:last-child]:translate-x-0 peer-checked:[&>span:last-child]:bg-amber-200">
+            <span className="h-7 w-12 rounded-full bg-stone-700 transition peer-focus-visible:outline-2 peer-focus-visible:outline-amber-200" />
+            <span className="pointer-events-none absolute left-1 h-5 w-5 translate-x-5 rounded-full bg-stone-300 transition" />
+          </span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-amber-200 transition peer-checked:text-stone-500">
+            Digital
+          </span>
+        </span>
+      </label>
+
       {state.error ? <p className="text-sm text-red-300 sm:col-span-2">{state.error}</p> : null}
       {state.message ? (
         <p className="text-sm text-emerald-300 sm:col-span-2">{state.message}</p>

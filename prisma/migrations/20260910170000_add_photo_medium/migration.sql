@@ -1,0 +1,1 @@
+ALTER TABLE "photos" ADD COLUMN "is_film" BOOLEAN NOT NULL DEFAULT true;
