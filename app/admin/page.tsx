@@ -49,14 +49,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           >
             View site
           </Link>
-          <form action="/auth/signout" method="post">
-            <button
-              className="rounded-full bg-stone-800 px-4 py-2 text-sm text-stone-100 transition hover:bg-stone-700"
-              type="submit"
-            >
-              Sign out
-            </button>
-          </form>
         </div>
       </section>
 
