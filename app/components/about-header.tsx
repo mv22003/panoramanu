@@ -31,7 +31,7 @@ export default function AboutHeader() {
     >
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-y-0 left-0 -z-10 w-full transition-colors duration-300 ${
+        className={`pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 transition-colors duration-300 ${
           isScrolled ? "bg-[#191712]" : "bg-transparent"
         }`}
       />

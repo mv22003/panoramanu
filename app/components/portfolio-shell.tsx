@@ -332,6 +332,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
     }, 1000);
 
     return () => window.clearTimeout(loadingTimer);
+
   }, [initialPhotos]);
 
   const selectedPhoto = useMemo(
@@ -545,7 +546,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   return (
     <div
       aria-busy={isLoading}
-      className="min-h-screen bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100"
+      className="min-h-screen overflow-x-clip bg-[radial-gradient(circle_at_top,#232019_0%,#15120f_48%,#0b0a08_100%)] text-stone-100"
     >
       <div
         aria-label="Loading portfolio"
@@ -706,7 +707,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           }`}
         >
           <div
-            className={`pointer-events-none absolute inset-y-0 left-0 z-0 w-full ${
+            className={`pointer-events-none absolute inset-y-0 left-1/2 z-0 w-screen -translate-x-1/2 ${
               isScrolled ? "bg-[#191712]" : "bg-transparent"
             }`}
           />
