@@ -34,6 +34,8 @@ export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Read browser-only consent state after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisible(readConsent() !== "granted" && readConsent() !== "denied");
   }, []);
 

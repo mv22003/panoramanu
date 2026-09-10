@@ -78,7 +78,6 @@ const jsonById = new Map(sourceJson.map((row) => [row.id, row]));
 const manualById = new Map(manual.map((row) => [row.id, row]));
 for (const row of historical) if (!jsonById.has(row.id)) jsonById.set(row.id, row);
 const csvById = new Map(sourceCsv.map((row) => [row.id, row]));
-const publicUrl = (path) => `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/photos/${path}`;
 const available = new Set(supabasePaths.map((path) => path.toLowerCase()));
 const report = { mode: dryRun ? "dry-run" : "apply", matched: [], restored: [], skipped: [], ambiguous: [] };
 const updates = [];

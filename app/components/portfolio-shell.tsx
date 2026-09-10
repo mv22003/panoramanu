@@ -317,7 +317,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [activeView, setActiveView] = useState<GalleryView>("collection");
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
-  const [slideshowPhotos, setSlideshowPhotos] = useState(() =>
+  const [slideshowPhotos, setSlideshowPhotos] = useState(
     initialPhotos.filter((photo) => photo.slideshowImageUrl),
   );
   const [zoomedPhotoId, setZoomedPhotoId] = useState("");
@@ -327,17 +327,20 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const stickyHeaderTopRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setCollectionPhotos(shufflePhotos(initialPhotos));
-    setSlideshowPhotos(shufflePhotos(initialPhotos.filter((photo) => photo.slideshowImageUrl)));
-    setHeroPhotoIndex(0);
-
+    const shuffleTimer = window.setTimeout(() => {
+      setCollectionPhotos(shufflePhotos(initialPhotos));
+      setSlideshowPhotos(shufflePhotos(initialPhotos.filter((photo) => photo.slideshowImageUrl)));
+      setHeroPhotoIndex(0);
+    }, 0);
     const loadingTimer = window.setTimeout(() => {
       setIsLoading(false);
     }, 1000);
 
-    return () => window.clearTimeout(loadingTimer);
-
-  }, [initialPhotos]);
+    return () => {
+      window.clearTimeout(shuffleTimer);
+      window.clearTimeout(loadingTimer);
+    };
+  }, []);
 
   const selectedPhoto = useMemo(
     () => photos.find((photo) => photo.id === selectedPhotoId),

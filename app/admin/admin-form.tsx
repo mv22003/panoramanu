@@ -90,6 +90,8 @@ export default function AdminForm({ photo }: AdminFormProps) {
     if (!state.message) return;
 
     formRef.current?.reset();
+    // Reset file state after the server action completes and the form is cleared.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFramedFile(null);
     setSlideshowFile(null);
   }, [state.message]);

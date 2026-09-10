@@ -66,7 +66,7 @@ export default async function AboutPage() {
               The person behind the frames.
             </h1>
             <p className="mt-6 max-w-2xl text-justify text-base leading-8 text-stone-300 sm:text-lg">
-              Hey, I'm Manuel Verduzco, a proud Mexican living in the UK. Photography is my
+              Hey, I&apos;m Manuel Verduzco, a proud Mexican living in the UK. Photography is my
               hobby, and a way for me to pay closer attention to the places and
               moments around me.
             </p>
