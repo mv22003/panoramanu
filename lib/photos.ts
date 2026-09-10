@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 
 export type Photo = { id:string; title:string; description:string; imageUrl:string; slideshowImageUrl:string; instagramUrl:string; locationName:string; countryName:string; takenOn:string|null; lat:number; lng:number; createdAt:string };
@@ -15,7 +16,7 @@ function draftData(draft: PhotoDraft) { return { title:draft.title.trim(), descr
 
 export async function getPhotos() { return (await prisma.photo.findMany({ orderBy:{ createdAt:"desc" } })).map(mapPhoto); }
 export async function getPhotoById(photoId:string) { const row = await prisma.photo.findUnique({ where:{ id:photoId } }); return row ? mapPhoto(row) : null; }
-export async function createPhoto(draft:PhotoDraft) { return mapPhoto(await prisma.photo.create({ data:draftData(draft) })); }
+export async function createPhoto(draft:PhotoDraft) { return mapPhoto(await prisma.photo.create({ data:{ id:randomUUID(), ...draftData(draft) } })); }
 export async function updatePhoto(photoId:string, draft:PhotoDraft) { const row = await prisma.photo.updateMany({ where:{ id:photoId }, data:draftData(draft) }); if (!row.count) throw new Error("Photo not found."); return mapPhoto(await prisma.photo.findUniqueOrThrow({ where:{ id:photoId } })); }
 export async function deletePhoto(photoId:string) { const row = await prisma.photo.deleteMany({ where:{ id:photoId } }); if (!row.count) throw new Error("Photo not found."); }
 
