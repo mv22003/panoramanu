@@ -7,16 +7,20 @@
     "build": "next build",
     "start": "next start",
     "import:photos": "node scripts/import-photos-to-supabase.mjs",
+    "import:photos-to-postgres": "node scripts/import-photos-to-postgres.mjs",
+    "restore:photo-urls": "node scripts/restore-supabase-photo-urls.mjs",
     "lint": "eslint",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "@vercel/analytics": "^2.0.1",
     "leaflet": "^1.9.4",
     "next": "16.3.3",
+    "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-leaflet": "^5.0.0"
@@ -29,7 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
-    "prisma": "^8.0.0-rc.12",
+    "prisma": "^7.10.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

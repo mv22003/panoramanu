@@ -4,18 +4,25 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 
 model Photo {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String
-  imageURL    String
-  lat         Float
-  lng         Float
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   String    @id @db.Uuid
+  title                String
+  description          String
+  imageUrl             String    @map("image_url")
+  slideshowImageUrl    String    @map("slideshow_image_url")
+  blobImageUrl         String?   @map("blob_image_url")
+  blobSlideshowImageUrl String?  @map("blob_slideshow_image_url")
+  instagramUrl         String    @map("instagram_url")
+  locationName         String    @map("location_name")
+  countryName          String    @map("country_name")
+  takenOn              DateTime? @map("taken_on") @db.Date
+  lat                  Float
+  lng                  Float
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  @@index([createdAt(sort: Desc)])
+  @@map("photos")
 }
