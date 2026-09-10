@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import type { Photo } from "@/lib/photos";
 import {
@@ -83,7 +83,16 @@ export default function AdminForm({ photo }: AdminFormProps) {
   const [slideshowFile, setSlideshowFile] = useState<File | null>(null);
   const framedInputRef = useRef<HTMLInputElement>(null);
   const slideshowInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const isEditing = Boolean(photo);
+
+  useEffect(() => {
+    if (!state.message) return;
+
+    formRef.current?.reset();
+    setFramedFile(null);
+    setSlideshowFile(null);
+  }, [state.message]);
 
   function clearFile(
     inputRef: { current: HTMLInputElement | null },
@@ -94,7 +103,7 @@ export default function AdminForm({ photo }: AdminFormProps) {
   }
 
   return (
-    <form action={formAction} className="mt-8 grid gap-4 sm:grid-cols-2">
+    <form action={formAction} className="mt-8 grid gap-4 sm:grid-cols-2" ref={formRef}>
       <input name="photoId" type="hidden" value={photo?.id ?? ""} />
       <input name="existingImageUrl" type="hidden" value={photo?.imageUrl ?? ""} />
       <input
