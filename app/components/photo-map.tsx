@@ -18,25 +18,21 @@ type PhotoMapProps = {
   photos: Photo[];
   selectedPhotoId: string;
   onSelectPhoto: (photoId: string) => void;
+  resetViewKey: number;
 };
 
 function MapViewport({
   photo,
   photos,
+  resetViewKey,
 }: {
   photo: Photo | undefined;
   photos: Photo[];
+  resetViewKey: number;
 }) {
   const map = useMap();
 
   useEffect(() => {
-    if (photo) {
-      map.flyTo([photo.lat, photo.lng], 13, {
-        duration: 1.2,
-      });
-      return;
-    }
-
     if (photos.length === 0) {
       map.setView([20, 0], 2);
       return;
@@ -55,7 +51,15 @@ function MapViewport({
       maxZoom: 5,
       padding: [48, 48],
     });
-  }, [map, photo, photos]);
+  }, [map, photos, resetViewKey]);
+
+  useEffect(() => {
+    if (!photo) return;
+
+    map.flyTo([photo.lat, photo.lng], Math.max(map.getZoom(), 13), {
+      duration: 1.2,
+    });
+  }, [map, photo]);
 
   return null;
 }
@@ -189,7 +193,7 @@ export default function PhotoMap(props: PhotoMapProps) {
         attribution='&copy; OpenStreetMap contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url={cartoTileUrl}
       />
-      <MapViewport photo={selectedPhoto} photos={props.photos} />
+      <MapViewport photo={selectedPhoto} photos={props.photos} resetViewKey={props.resetViewKey} />
       <PhotoMarkers {...props} />
     </MapContainer>
   );

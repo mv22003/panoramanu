@@ -8,6 +8,7 @@ type PhotoMapShellProps = {
   photos: Photo[];
   selectedPhotoId: string;
   onSelectPhoto: (photoId: string) => void;
+  resetViewKey: number;
 };
 
 const PhotoMap = dynamic(() => import("@/app/components/photo-map"), {

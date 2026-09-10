@@ -314,6 +314,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [collectionPhotos, setCollectionPhotos] = useState(initialPhotos);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPhotoId, setSelectedPhotoId] = useState("");
+  const [mapResetViewKey, setMapResetViewKey] = useState(0);
   const [activeView, setActiveView] = useState<GalleryView>("collection");
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
@@ -962,19 +963,35 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
               <p className="text-xs uppercase tracking-[0.28em] text-stone-500">
                 Map view
               </p>
-              {selectedPhoto ? (
+              <div className="flex items-center gap-4">
+                {selectedPhoto ? (
+                  <button
+                    className="rounded-full border border-stone-700/90 bg-stone-950/40 px-3 py-2 font-inherit text-inherit transition hover:border-amber-200/80 hover:bg-stone-900 hover:text-amber-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+                    onClick={() => setSelectedPhotoId("")}
+                    type="button"
+                    aria-label="See different image"
+                    title="See different image"
+                  >
+                    <svg aria-hidden="true" className="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                      <rect x="4" y="5" width="11" height="13" rx="1.5" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m8 5 1.5-2h8.5A2 2 0 0 1 20 5v10a2 2 0 0 1-2 2h-3" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 10h6m-2-2 2 2-2 2M17 14h-6m2-2-2 2 2 2" />
+                    </svg>
+                  </button>
+                ) : null}
                 <button
-                  className="appearance-none border-0 bg-transparent p-0 font-inherit text-inherit"
-                  onClick={() => setSelectedPhotoId("")}
+                  className="rounded-full border border-stone-700/90 bg-stone-950/40 px-3 py-2 font-inherit text-inherit transition hover:border-amber-200/80 hover:bg-stone-900 hover:text-amber-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+                  onClick={() => setMapResetViewKey((key) => key + 1)}
                   type="button"
+                  aria-label="Zoom out to planet view"
+                  title="Planet view"
                 >
-                  <span className="text-xs uppercase tracking-[0.28em] text-stone-500 transition hover:text-stone-200">
-                    See different image
-                  </span>
+                  <svg aria-hidden="true" className="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="12" cy="12" r="9" />
+                    <path strokeLinecap="round" d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9s-1.1 6.5-3.3 9c-2.2-2.5-3.3-5.5-3.3-9S9.8 5.5 12 3Z" />
+                  </svg>
                 </button>
-              ) : (
-                <p className="text-xs text-stone-500">Photo location context</p>
-              )}
+              </div>
             </div>
             <div className="relative">
               {selectedPhoto ? (
@@ -1031,6 +1048,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                 onSelectPhoto={setSelectedPhotoId}
                 photos={photos}
                 selectedPhotoId={selectedPhotoId}
+                resetViewKey={mapResetViewKey}
               />
             </div>
           </div>
