@@ -124,7 +124,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       alt=""
                       aria-hidden="true"
                       className="h-full w-full object-cover"
-                      src={photo.imageUrl}
+                      src={getAdminPreviewUrl(photo.imageUrl)}
+                      loading="lazy"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center px-2 text-center text-[10px] uppercase tracking-[0.14em] text-stone-600">
@@ -176,4 +177,17 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       )}
     </main>
   );
+}
+function getAdminPreviewUrl(source: string) {
+  if (!source) return source;
+
+  try {
+    const url = new URL(source);
+    url.searchParams.set("width", "320");
+    url.searchParams.set("quality", "75");
+    url.searchParams.set("resize", "contain");
+    return url.toString();
+  } catch {
+    return source;
+  }
 }

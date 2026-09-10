@@ -26,6 +26,20 @@ const galleryViews: Array<{ id: GalleryView; label: string }> = [
   { id: "map", label: "Map" },
 ];
 
+function getOptimizedImageUrl(source: string, width: number) {
+  if (!source) return source;
+
+  try {
+    const url = new URL(source);
+    url.searchParams.set("width", String(width));
+    url.searchParams.set("quality", "75");
+    url.searchParams.set("resize", "contain");
+    return url.toString();
+  } catch {
+    return source;
+  }
+}
+
 function ViewOptions({
   activeView,
   onChange,
@@ -494,7 +508,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   }
 
   function renderPhotoSurface(photo: Photo, mode: "hero" | "gallery") {
-    const heroSource = photo.slideshowImageUrl;
+    const heroSource = getOptimizedImageUrl(photo.slideshowImageUrl, 1800);
 
     if (!(mode === "hero" ? heroSource : photo.imageUrl)) {
       return (
@@ -519,16 +533,10 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       return (
         <div className="relative w-full overflow-hidden bg-[#0f0d0a]">
           <img
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full scale-110 object-cover opacity-24 blur-2xl saturate-[0.82]"
-            src={photo.imageUrl}
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06)_0%,rgba(18,16,13,0.14)_26%,rgba(10,9,7,0.72)_100%)]" />
-          <img
             alt={photo.title}
             className="relative z-10 block h-auto w-full transition duration-500 group-hover:scale-[1.015]"
-            src={photo.imageUrl}
+            loading="lazy"
+            src={getOptimizedImageUrl(photo.imageUrl, 1400)}
           />
         </div>
       );
@@ -538,6 +546,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
       <img
         alt={photo.title}
         className="h-full w-full object-cover"
+        fetchPriority="high"
         src={heroSource}
       />
     );
@@ -583,7 +592,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                   alt={zoomedPhoto.title}
                   className="h-auto max-h-[calc(100vh-12rem)] w-auto max-w-[calc(100vw-3rem)] object-contain shadow-[0_30px_90px_rgba(0,0,0,0.45)] sm:max-w-[calc(100vw-5rem)]"
                   onClick={(event) => event.stopPropagation()}
-                  src={zoomedPhoto.imageUrl}
+                  src={getOptimizedImageUrl(zoomedPhoto.imageUrl, 2200)}
                 />
               ) : null}
             </div>
@@ -923,7 +932,8 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                                       <img
                                         alt=""
                                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                                        src={photo.imageUrl}
+                                        loading="lazy"
+                                        src={getOptimizedImageUrl(photo.imageUrl, 320)}
                                       />
                                     ) : null}
                                   </div>
@@ -983,7 +993,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                           alt=""
                           aria-hidden="true"
                           className="absolute inset-0 h-full w-full scale-110 object-cover opacity-28 blur-2xl saturate-[0.82]"
-                          src={selectedPhoto.imageUrl}
+                          src={getOptimizedImageUrl(selectedPhoto.imageUrl, 320)}
                         />
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05)_0%,rgba(18,16,13,0.1)_26%,rgba(10,9,7,0.66)_100%)]" />
                         <button
@@ -995,7 +1005,8 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                           <img
                             alt={selectedPhoto.title}
                             className="block h-auto max-h-[13rem] w-auto max-w-[13rem] self-center"
-                            src={selectedPhoto.imageUrl}
+                            loading="lazy"
+                            src={getOptimizedImageUrl(selectedPhoto.imageUrl, 320)}
                           />
                         </button>
                       </>

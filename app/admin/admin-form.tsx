@@ -41,7 +41,7 @@ async function savePhotoWithUploads(
       if (!upload) throw new Error(error);
 
       const body = new FormData();
-      body.append("cacheControl", "3600");
+      body.append("cacheControl", "31536000");
       body.append("", file);
       const response = await fetch(upload.signedUrl, { method: "PUT", body });
       if (!response.ok) {
