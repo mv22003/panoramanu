@@ -932,7 +932,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                                       <img
                                         alt=""
                                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                                        loading="lazy"
+                                        loading="eager"
                                         src={getOptimizedImageUrl(photo.imageUrl, 320)}
                                       />
                                     ) : null}
