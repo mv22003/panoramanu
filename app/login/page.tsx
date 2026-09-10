@@ -11,6 +11,8 @@ function getErrorMessage(error: string | undefined) {
   switch (error) {
     case "invalid-key":
       return "That admin key is not valid.";
+    case "try-later":
+      return "Too many login attempts. Please try again in a few minutes.";
     case "setup":
       return "Add ADMIN_ACCESS_KEY and ADMIN_SESSION_SECRET to your local environment.";
     default:
@@ -28,10 +30,22 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs uppercase tracking-[0.28em] text-stone-500">The back room</p>
           <Link
-            className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:border-stone-600 hover:text-stone-50"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-700/80 text-xs uppercase tracking-[0.18em] text-stone-400 transition hover:border-stone-500 hover:text-stone-100 sm:h-auto sm:w-auto sm:px-4 sm:py-2"
             href="/"
           >
-            Go back
+            <svg
+              aria-hidden="true"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m12 5-7 7 7 7M5 12h14" />
+            </svg>
+            <span className="sr-only">Back to gallery</span>
           </Link>
         </div>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-stone-50">
