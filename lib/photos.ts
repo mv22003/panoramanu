@@ -68,6 +68,30 @@ function normalizeImageUrl(value: string) {
   return `/${normalized}`;
 }
 
+function validateImageUrl(value: string) {
+  if (value.startsWith("/")) return;
+
+  const url = new URL(value);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const allowedHost = supabaseUrl ? new URL(supabaseUrl).host : "";
+
+  if (url.protocol !== "https:" || url.host !== allowedHost) {
+    throw new Error("Image URLs must use the configured Supabase Storage host.");
+  }
+}
+
+function validateInstagramUrl(value: string) {
+  if (!value) return;
+
+  const url = new URL(value);
+  if (
+    url.protocol !== "https:" ||
+    !["instagram.com", "www.instagram.com"].includes(url.hostname)
+  ) {
+    throw new Error("Instagram URL must be an HTTPS Instagram link.");
+  }
+}
+
 function getSupabaseSecretKey() {
   return (
     process.env.SUPABASE_SECRET_KEY?.trim() ??
@@ -306,6 +330,16 @@ export function parsePhotoDraft(input: unknown): PhotoDraft {
 
   if (!title || !imageUrl || !locationName) {
     throw new Error("Title, framed image, and location are required.");
+  }
+
+  try {
+    validateImageUrl(imageUrl);
+    validateInstagramUrl(instagramUrl);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error("Please provide valid image and Instagram URLs.");
+    }
+    throw error;
   }
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
