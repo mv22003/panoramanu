@@ -313,6 +313,9 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const [activeView, setActiveView] = useState<GalleryView>("collection");
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
+  const [slideshowPhotos, setSlideshowPhotos] = useState(() =>
+    initialPhotos.filter((photo) => photo.slideshowImageUrl),
+  );
   const [zoomedPhotoId, setZoomedPhotoId] = useState("");
   const galleryCardRefs = useRef(new Map<string, HTMLButtonElement>());
   const mapSectionRef = useRef<HTMLElement | null>(null);
@@ -321,6 +324,8 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
 
   useEffect(() => {
     setCollectionPhotos(shufflePhotos(initialPhotos));
+    setSlideshowPhotos(shufflePhotos(initialPhotos.filter((photo) => photo.slideshowImageUrl)));
+    setHeroPhotoIndex(0);
 
     const loadingTimer = window.setTimeout(() => {
       setIsLoading(false);
@@ -332,10 +337,6 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
   const selectedPhoto = useMemo(
     () => photos.find((photo) => photo.id === selectedPhotoId),
     [photos, selectedPhotoId],
-  );
-  const slideshowPhotos = useMemo(
-    () => photos.filter((photo) => photo.slideshowImageUrl),
-    [photos],
   );
   const heroPhoto = slideshowPhotos[heroPhotoIndex] ?? slideshowPhotos[0];
   const calendarPhotos = useMemo(
