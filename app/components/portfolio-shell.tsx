@@ -706,7 +706,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
           }`}
         >
           <div
-            className={`pointer-events-none absolute inset-y-0 left-1/2 z-0 w-screen -translate-x-1/2 ${
+            className={`pointer-events-none absolute inset-y-0 left-0 z-0 w-full ${
               isScrolled ? "bg-[#191712]" : "bg-transparent"
             }`}
           />
