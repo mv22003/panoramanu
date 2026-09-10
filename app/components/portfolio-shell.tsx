@@ -27,17 +27,7 @@ const galleryViews: Array<{ id: GalleryView; label: string }> = [
 ];
 
 function getOptimizedImageUrl(source: string, width: number) {
-  if (!source) return source;
-
-  try {
-    const url = new URL(source);
-    url.searchParams.set("width", String(width));
-    url.searchParams.set("quality", "75");
-    url.searchParams.set("resize", "contain");
-    return url.toString();
-  } catch {
-    return source;
-  }
+  return source;
 }
 
 function ViewOptions({
