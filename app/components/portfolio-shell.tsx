@@ -501,6 +501,11 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
     });
   }
 
+  function showPlanetView() {
+    setSelectedPhotoId("");
+    setMapResetViewKey((key) => key + 1);
+  }
+
   function renderPhotoSurface(photo: Photo, mode: "hero" | "gallery") {
     const heroSource = getOptimizedImageUrl(photo.slideshowImageUrl, 1800);
 
@@ -981,7 +986,7 @@ export default function PortfolioShell({ initialPhotos }: PortfolioShellProps) {
                 ) : null}
                 <button
                   className="rounded-full border border-stone-700/90 bg-stone-950/40 px-3 py-2 font-inherit text-inherit transition hover:border-amber-200/80 hover:bg-stone-900 hover:text-amber-100 focus-visible:outline-2 focus-visible:outline-amber-200"
-                  onClick={() => setMapResetViewKey((key) => key + 1)}
+                  onClick={showPlanetView}
                   type="button"
                   aria-label="Zoom out to planet view"
                   title="Planet view"
